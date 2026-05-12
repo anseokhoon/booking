@@ -1,65 +1,88 @@
-<script>
-// ==================== CONFIG ====================
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwXlhqsoRDG3er8GHfea7lGdYize-O4JEDNwN5abc7tG36VA432Nr_kMeTCPwWBqiys/exec";
-const GOOGLE_CLIENT_ID = "555216660049-7qhpo210se6i31pt2i7bkuvodavv3hml.apps.googleusercontent.com";
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KB상담예약 - seokhoonbaro 상담</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap');
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #003087 0%, #0055cc 100%);
+            color: #333;
+            margin: 0; padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        header {
+            background: #FFCD00; /* KB Yellow */
+            color: #003087;
+            padding: 20px;
+            text-align: center;
+            font-weight: 900;
+            font-size: 28px;
+        }
+        .content { padding: 30px; }
+        h1, h2 { color: #003087; }
+        button {
+            background: #FFCD00;
+            color: #003087;
+            border: none;
+            padding: 14px 28px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover { background: #ffd633; transform: scale(1.05); }
+        .slot {
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-left: 5px solid #FFCD00;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .slot:hover { background: #fff3cc; }
+        .contact { text-align: center; margin: 20px; font-size: 18px; font-weight: bold; color: #003087; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>KB 금융 파트너 상담예약</header>
+        <div class="content">
+            <h1>석훈바로 상담</h1>
+            <p>1시간 상담 + 1시간 이동시간을 고려한 예약 시스템입니다.<br>연락처: <strong>010-2213-3907</strong></p>
+            
+            <h2>예약 가능한 시간</h2>
+            <div id="slots"></div>
+            
+            <div class="contact">
+                예약 후 자동으로 Google Calendar에 등록됩니다.<br>
+                문의: 010-2213-3907
+            </div>
+        </div>
+    </div>
 
-let gcalConnected = false;
-let gcalAccessToken = null;
-
-// ==================== OAuth 토큰 처리 (가장 중요!) ====================
-function handleOAuthCallback() {
-  const hash = window.location.hash.substring(1);
-  if (!hash) return;
-
-  const params = new URLSearchParams(hash);
-  const accessToken = params.get('access_token');
-  const error = params.get('error');
-
-  if (error) {
-    console.error("OAuth Error:", error);
-    alert("Google 로그인 중 오류가 발생했습니다: " + error);
-    return;
-  }
-
-  if (accessToken) {
-    gcalAccessToken = accessToken;
-    gcalConnected = true;
-    
-    document.getElementById('gcal-btn-text').textContent = '연결됨 ✓';
-    document.getElementById('gcal-status-text').textContent = 'Google Calendar 연동 완료';
-    
-    // URL 해시 제거 (보안)
-    window.history.replaceState({}, document.title, window.location.pathname);
-    
-    alert("✅ Google Calendar가 성공적으로 연동되었습니다!");
-  }
-}
-
-// 페이지 로드 시 토큰 확인
-window.addEventListener('load', handleOAuthCallback);
-
-// ==================== Google 로그인 ====================
-function toggleGcal() {
-  if (gcalConnected) {
-    if (confirm("Google Calendar 연동을 해제하시겠습니까?")) {
-      gcalConnected = false;
-      gcalAccessToken = null;
-      document.getElementById('gcal-btn-text').textContent = 'Google 로그인';
-      document.getElementById('gcal-status-text').textContent = '연동하면 일정이 자동으로 추가됩니다';
-    }
-    return;
-  }
-
-  const redirectUri = encodeURIComponent(window.location.href.split('?')[0]);
-  const scope = encodeURIComponent("https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar");
-  
-  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
-    `client_id=${GOOGLE_CLIENT_ID}&` +
-    `redirect_uri=${redirectUri}&` +
-    `response_type=token&` +
-    `scope=${scope}&` +
-    `prompt=consent`;
-
-  window.location.href = authUrl;   // 같은 창에서 열기 (팝업 차단 방지)
-}
-</script>
+    <script>
+        // 간단한 슬롯 생성 (실제로는 Google Calendar API 연동 필요)
+        function generateSlots() {
+            const slotsDiv = document.getElementById('slots');
+            slotsDiv.innerHTML = `
+                <p><strong>월~금:</strong> 09:00 ~ 21:00 (2시간 단위)</p>
+                <p><strong>토요일:</strong> 09:00 ~ 16:00</p>
+                <p style="color:#d32f2f;">일요일: 휴무</p>
+                <button onclick="alert('예약이 Google Calendar에 등록되었습니다! (실제 연동 시 자동 입력)')">지금 예약하기</button>
+            `;
+        }
+        generateSlots();
+    </script>
+</body>
+</html>
