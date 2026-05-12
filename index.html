@@ -9,7 +9,6 @@
     :root {
       --primary: #0f172a;
       --accent: #d4af37;
-      --text: #f8fafc;
     }
     body { 
       font-family: 'Noto Sans KR', system-ui, sans-serif; 
@@ -21,23 +20,9 @@
       padding: 32px 20px 28px;
       text-align: center;
     }
-    .header h1 {
-      font-size: 1.55rem;
-      font-weight: 800;
-      margin: 0 0 8px 0;
-      letter-spacing: -0.5px;
-    }
-    .header p {
-      margin: 0;
-      opacity: 0.95;
-      font-size: 1.05rem;
-    }
-    .subtitle {
-      font-size: 0.95rem;
-      opacity: 0.85;
-      margin-top: 12px;
-      line-height: 1.4;
-    }
+    .header h1 { font-size: 1.55rem; font-weight: 800; margin: 0 0 8px 0; }
+    .header p { margin: 0; font-size: 1.05rem; }
+    .subtitle { font-size: 0.95rem; opacity: 0.85; margin-top: 12px; line-height: 1.4; }
 
     .container { max-width: 640px; margin: 0 auto; padding: 20px 15px; }
 
@@ -48,7 +33,6 @@
       overflow: hidden;
       margin-bottom: 20px;
     }
-
     .calendar-header {
       display: flex;
       justify-content: space-between;
@@ -62,15 +46,8 @@
       grid-template-columns: repeat(7, 1fr);
       gap: 4px;
       padding: 12px;
-      background: white;
     }
-    .day-name {
-      text-align: center;
-      padding: 12px 0;
-      font-weight: 600;
-      color: #64748b;
-      font-size: 0.95rem;
-    }
+    .day-name { text-align: center; padding: 12px 0; font-weight: 600; color: #64748b; }
     .date {
       background: white;
       height: 68px;
@@ -80,7 +57,6 @@
       font-size: 1.1rem;
       border-radius: 10px;
       cursor: pointer;
-      transition: all 0.2s;
     }
     .date:hover { background: #f1f5f9; }
     .date.today { background: #e0f2fe; font-weight: 700; }
@@ -124,122 +100,4 @@
       font-size: 1.25rem;
       font-weight: 700;
       background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      margin-top: 20px;
-      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.2);
-    }
-  </style>
-</head>
-<body>
-  <!-- 프리미엄 헤더 -->
-  <div class="header">
-    <h1>KB STAR WEALTH MANAGER</h1>
-    <p>안석훈 웰스매니저</p>
-    <div class="subtitle">
-      의사 고객 전문 | 상속·증여·절세 1:1 프라이빗 상담<br>
-      2008년부터 쌓아온 자산관리 노하우
-    </div>
-  </div>
-
-  <div class="container">
-    <h2 style="text-align:center; margin:24px 0 16px; font-size:1.35rem; color:#1e2937;">
-      📅 상담 일정 예약
-    </h2>
-
-    <!-- 달력 -->
-    <div class="calendar-container">
-      <div class="calendar-header">
-        <button onclick="prevMonth()" style="font-size:1.8rem; background:none; border:none; color:#64748b;">←</button>
-        <h2 id="monthTitle" style="margin:0; font-size:1.4rem; color:#1e2937;">2026년 5월</h2>
-        <button onclick="nextMonth()" style="font-size:1.8rem; background:none; border:none; color:#64748b;">→</button>
-      </div>
-      <div class="calendar-grid" id="calendar"></div>
-    </div>
-
-    <!-- 시간 선택 -->
-    <div id="timeSlots" class="time-slots" style="display:none;">
-      <h3 id="selectedDateTitle" style="margin:0 0 20px 0; font-size:1.3rem; text-align:center; color:#1e2937;"></h3>
-      <div id="timeGrid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(148px, 1fr)); gap:12px;"></div>
-      
-      <div style="background:#fefce8; padding:16px; border-radius:12px; margin:20px 0; font-size:0.95rem;">
-        <strong>💡 상담 안내</strong><br>
-        • 상담 60분 + 이동 60분 = 총 2시간 블록 자동 확보
-      </div>
-
-      <button class="book" onclick="confirmBooking()">
-        ✅ 이 시간으로 예약하기
-      </button>
-    </div>
-  </div>
-
-  <script>
-    const CALENDAR_ID = 'seokhoonbaro@gmail.com';
-    const API_KEY = 'AIzaSyAmJUa8Tb-pSG2EK3uG4efai0OisZt5oH8';
-    const SCRIPT_URL = "여기에_Apps_Script_웹앱_URL_붙여넣기";
-
-    let currentDate = new Date(2026, 4, 12);
-    let busyTimes = [];
-    let selectedSlot = null;
-
-    function initClient() {
-      gapi.load('client', () => {
-        gapi.client.init({
-          apiKey: API_KEY,
-          discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest']
-        }).then(loadBusyTimes);
-      });
-    }
-
-    async function loadBusyTimes() {
-      const start = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-      const end = new Date(currentDate.getFullYear(), currentDate.getMonth() + 2, 1);
-      try {
-        const res = await gapi.client.calendar.freebusy.query({
-          resource: { timeMin: start.toISOString(), timeMax: end.toISOString(), items: [{id: CALENDAR_ID}] }
-        });
-        busyTimes = res.result.calendars[CALENDAR_ID].busy || [];
-      } catch(e) {}
-      renderCalendar();
-    }
-
-    function renderCalendar() {
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth();
-      document.getElementById('monthTitle').textContent = `${year}년 ${month+1}월`;
-
-      const firstDay = new Date(year, month, 1).getDay();
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const prevDays = new Date(year, month, 0).getDate();
-
-      let html = '';
-      ['일','월','화','수','목','금','토'].forEach(d => {
-        html += `<div class="day-name">${d}</div>`;
-      });
-
-      for (let i = firstDay - 1; i >= 0; i--) {
-        html += `<div class="date other-month">${prevDays - i}</div>`;
-      }
-
-      const today = new Date(); today.setHours(0,0,0,0);
-
-      for (let day = 1; day <= daysInMonth; day++) {
-        const dateObj = new Date(year, month, day);
-        let cls = 'date';
-        if (dateObj.getTime() === today.getTime()) cls += ' today';
-        html += `<div class="${cls}" onclick="selectDate(${year},${month},${day})">${day}</div>`;
-      }
-      document.getElementById('calendar').innerHTML = html;
-    }
-
-    function selectDate(year, month, day) {
-      const selectedDate = new Date(year, month, day);
-      document.getElementById('timeSlots').style.display = 'block';
-      showTimeSlots(selectedDate);
-    }
-
-    function showTimeSlots(date) {
-      const dow = date.getDay();
-      document.getElementById('selectedDateTitle').textContent = 
-        `${date.getMonth()+1}월 ${
+      color:
