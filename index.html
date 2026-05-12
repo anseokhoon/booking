@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>안석훈 스타웰스매니저 | 상담 예약</title>
+  <script src="https://apis.google.com/js/api.js"></script>
+  <style>
+    :root { --primary: #1e3a8a; }
+    body { font-family: 'Noto Sans KR', system-ui, sans-serif; margin:0; background:#f8fafc; }
+    .header { background:white; padding:15px; text-align:center; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
+    .container { max-width: 640px; margin: 0 auto; }
+    h1 { margin:0; font-size:1.4rem; color:var(--primary); }
+    
+    .calendar-header { display:flex; justify-content:space-between; align-items:center; padding:15px; background:white; }
+    .calendar-grid { display:grid; grid-template-columns: repeat(7, 1fr); gap:2px; background:#eee; padding:2px; }
+    .day-name { text-align:center; padding:8px 0; background:white; font-weight:500; font-size:0.9rem; }
+    .date { background:white; height:60px; display:flex; flex-direction:column; align-items:center; justify-content:center; 
+             font-size:1.05rem; cursor:pointer; position:relative; }
+    .date.other-month { color:#ccc; }
+    .date.today { background:#f0f9ff; }
+    .date.selected { background:#1e3a8a; color:white; }
+    .date.has-slot::after { content:''; position:absolute; bottom:6px; width:5px; height:5px; background:#10b981; border-radius:50%; }
+
+    .time-slots { padding:20px; background:white; }
+    .time-group { margin-bottom:25px; }
+    .time-title { font-size:1.1rem; margin-bottom:12px; color:#333; }
+    .time-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap:10px; }
+    .time-btn {
+      padding:14px 10px; text-align:center; border:2px solid #e2e8f0; border-radius:12px;
+      cursor:pointer; transition:all 0.2s; font-size:1.05rem;
+    }
+    .time-btn:hover { border-color:var(--primary); }
+    .time-btn.available { border-color:#10b981; color:#166534; }
+    .time-btn.selected { background:#1e3a8a; color:white; border-color:#1e3a8a; }
+
+    button.book { width:100%; padding:18px; font-size:1.2rem; background:var(--primary); color:white; border:none; border-radius:12px; margin:20px 0; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>⭐ 안석훈 스타웰스매니저</h1>
+    <p>1:1 상담 예약 (상담 60분 + 이동 60분)</p>
+  </div>
+
+  <div class="container">
+    <!-- 달력 -->
+    <div class="calendar-header">
+      <button onclick="prevMonth()">←</button>
+      <h2 id="monthTitle">2026년 5월</h2>
+      <button onclick="nextMonth()">→</button>
+    </div>
+
+    <div class="calendar-grid" id="calendar"></div>
+
+    <!-- 시간 슬롯 -->
+    <div class="time-slots" id="timeSlots" style="display:none;">
+      <h3 id="selectedDateTitle"></h3>
+      <div id="morning"></div>
+      <div id="afternoon"></div>
+      <button class="book" onclick="confirmBooking()">✅ 이 시간으로 예약하기</button>
+    </div>
+  </div>
+
+  <script>
+    const CALENDAR_ID = 'seokhoonbaro@gmail.com';
+    const API_KEY = 'AIzaSyAmJUa8Tb-pSG2EK3uG4efai0OisZt5oH8';
+    
+    let currentDate = new Date(2026, 4, 12); // 2026년 5월 (0-based)
+    let selectedSlot = null;
+    let busyTimes = [];
+
+    function initClient() {
+      gapi.load('client', () => {
+        gapi.client.init({ apiKey: API_KEY, discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'] })
+          .then(() => loadBusyTimes());
+      });
+    }
+
+    async function loadBusyTimes() {
+      const start = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+      const end = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+      end.setDate(end.getDate() + 7);
+
+      try {
+        const res = await gapi.client.calendar.freebusy.query({
+          resource: {
+            timeMin: start.toISOString(),
+            timeMax: end.toISOString(),
+            items: [{ id: CALENDAR_ID }]
+          }
+        });
+        busyTimes = res.result.calendars[CALENDAR_ID].busy || [];
+        renderCalendar();
+      } catch(e) { console.error(e); renderCalendar(); }
+    }
+
+    function renderCalendar() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      document.getElementById('monthTitle').textContent = `${year}년 ${month+1}월`;
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const prevDays = new Date(year, month, 0).getDate();
+
+      let html = '';
+      // 요일
+      ['일','월','화','수','목','금','토'].forEach(day => {
+        html += `<div class="day-name">${day}</div>`;
+      });
+
+      // 이전 달
+      for (let i = firstDay - 1; i >= 0; i--) {
+        html += `<div class="date other-month">${prevDays - i}</div>`;
+      }
+
+      const today = new Date();
+      today.setHours(0,0,0,0);
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month, day);
+        const isToday = date.getTime() === today.getTime();
+        const hasSlot = hasAvailableSlot(date);
+
+        let className = 'date';
+        if (isToday) className += ' today';
+        if (hasSlot) className += ' has-slot';
+
+        html += `
+          <div class="${className}" onclick="selectDate(${year},${month},${day})">
+            ${day}
+          </div>`;
+      }
+
+      document.getElementById('calendar').innerHTML = html;
+    }
+
+    function hasAvailableSlot(date) {
+      const dayStart = new Date(date);
+      dayStart.setHours(9,0,0,0);
+      const dayEnd = new Date(date);
+      dayEnd.setHours(18,0,0,0);
+
+      return !busyTimes.some(b => {
+        const bStart = new Date(b.start);
+        const bEnd = new Date(b.end);
+        return (bStart < dayEnd && bEnd > dayStart);
+      });
+    }
+
+    let selectedDate = null;
+
+    function selectDate(year, month, day) {
+      selectedDate = new Date(year, month, day);
+      document.querySelectorAll('.date').forEach(d => d.classList.remove('selected'));
+      
+      // 선택된 날짜 강조 (간단 구현)
+      renderCalendar();
+      showTimeSlots(selectedDate);
+    }
+
+    function showTimeSlots(date) {
+      const title = document.getElementById('selectedDateTitle');
+      title.textContent = `${date.getMonth()+1}월 ${date.getDate()}일 (${['일','월','화','수','목','금','토'][date.getDay()]})`;
+
+      document.getElementById('timeSlots').style.display = 'block';
+
+      const morning = document.getElementById('morning');
+      const afternoon = document.getElementById('afternoon');
+      morning.innerHTML = `<div class="time-title">오전</div><div class="time-grid" id="morningGrid"></div>`;
+      afternoon.innerHTML = `<div class="time-title">오후</div><div class="time-grid" id="afternoonGrid"></div>`;
+
+      const times = [];
+      // 오전 9시 ~ 12시
+      for (let h = 9; h <= 11; h++) {
+        times.push(`${h}:00`, `${h}:30`);
+      }
+      // 오후 1시 ~ 6시
+      for (let h = 13; h <= 17; h++) {
+        times.push(`${h}:00`, `${h}:30`);
+      }
+
+      times.forEach(timeStr => {
+        const [hour, min] = timeStr.split(':').map(Number);
+        const slotStart = new Date(date);
+        slotStart.setHours(hour, min, 0, 0);
+        const slotEnd = new Date(slotStart.getTime() + 60*60*1000);
+
+        const isBusy = busyTimes.some(b => {
+          const bStart = new Date(b.start);
+          const bEnd = new Date(b.end);
+          return (slotStart < bEnd && slotEnd > bStart);
+        });
+
+        const grid = hour < 12 ? 'morningGrid' : 'afternoonGrid';
+        const btn = document.createElement('div');
+        btn.className = `time-btn ${isBusy ? '' : 'available'}`;
+        btn.textContent = timeStr;
+        if (!isBusy) {
+          btn.onclick = () => selectTime(slotStart, slotEnd, btn);
+        }
+        document.getElementById(grid).appendChild(btn);
+      });
+    }
+
+    function selectTime(start, end, element) {
+      document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('selected'));
+      element.classList.add('selected');
+      selectedSlot = { start, end };
+    }
+
+    function confirmBooking() {
+      if (!selectedSlot) return alert('시간을 선택해주세요.');
+
+      const name = prompt("이름을 입력해주세요:");
+      if (!name) return;
+
+      alert(`✅ 예약이 완료되었습니다!\n\n날짜: ${selectedSlot.start.toLocaleDateString('ko-KR')}\n시간: ${selectedSlot.start.toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'})}\n\n안석훈 매니저가 빠른 시일 내 연락드리겠습니다.\n\n문의: 010-2213-3907`);
+    }
+
+    function prevMonth() { currentDate.setMonth(currentDate.getMonth()-1); loadBusyTimes(); }
+    function nextMonth() { currentDate.setMonth(currentDate.getMonth()+1); loadBusyTimes(); }
+
+    window.onload = initClient;
+  </script>
+</body>
+</html>
