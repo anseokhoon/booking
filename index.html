@@ -1,110 +1,83 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <base target="_top">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <?!= include('Style'); ?>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: 'Noto Sans KR', sans-serif; background:#f4f7fa; margin:0; padding:0; }
+    .header { background: linear-gradient(to right, #003087, #1e5eff); color:white; padding:20px; text-align:center; }
+    .title { font-size:24px; font-weight:900; }
+    .content { padding:20px; max-width:720px; margin:auto; }
+    .date-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(70px,1fr)); gap:12px; margin:20px 0; }
+    .date-btn { padding:16px 10px; background:white; border:2px solid #ddd; border-radius:12px; font-size:17px; font-weight:bold; }
+    .slot { padding:20px; background:white; border:2px solid #eee; border-radius:14px; margin:12px 0; font-size:17.5px; display:flex; justify-content:space-between; align-items:center; }
+    .available { color:#00c853; font-weight:bold; }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div class="title">스타웰스매니저 안석훈</div>
-      <div class="subtitle">1:1 맞춤 자산관리 상담</div>
-    </header>
+  <div class="header">
+    <div class="title">스타웰스매니저 안석훈</div>
+    <div>1:1 맞춤 자산관리 상담</div>
+  </div>
 
-    <div class="content">
-      <h2>📅 상담 예약하기</h2>
-      
-      <div id="calendar" class="date-grid"></div>
-      
-      <div id="slots"></div>
-      
-      <div class="info">
-        연락처 <strong>010-2213-3907</strong><br>
-        예약 후 Google Calendar에 자동 등록됩니다
-      </div>
-    </div>
+  <div class="content">
+    <h2>📅 예약 날짜 선택</h2>
+    <div id="calendar"></div>
+    <div id="slots"></div>
   </div>
 
   <script>
-    let currentYear = 2026;
-    let currentMonth = 5;
+    let year = 2026;
+    let month = 5;
 
     function renderCalendar() {
-      let html = `<h3 style="text-align:center; color:#003087;">${currentYear}년 ${currentMonth}월</h3>`;
-      html += `<div style="text-align:center; margin:15px 0;">
-                 <button onclick="prevMonth()" style="margin:0 8px; padding:10px 16px;">← 이전</button>
-                 <button onclick="nextMonth()" style="margin:0 8px; padding:10px 16px;">다음 →</button>
-               </div>`;
-
+      let html = `<p style="text-align:center; font-size:18px;">${year}년 ${month}월</p>`;
       html += `<div class="date-grid">`;
-      
       for (let d = 1; d <= 31; d++) {
-        const date = new Date(currentYear, currentMonth-1, d);
-        if (date.getMonth() !== currentMonth-1) break;
-        if (date.getDay() === 0) continue; // 일요일 제외
+        const date = new Date(year, month-1, d);
+        if (date.getMonth() !== month-1) break;
+        if (date.getDay() === 0) continue;
 
-        html += `
-          <button class="date-btn" onclick="loadSlots(${currentYear}, ${currentMonth}, ${d})">
-            ${d}일<br>
-            <small>${['일','월','화','수','목','금','토'][date.getDay()]}</small>
-          </button>`;
+        html += `<button class="date-btn" onclick="loadSlots(${year},${month},${d})">${d}일</button>`;
       }
       html += `</div>`;
-      
       document.getElementById('calendar').innerHTML = html;
     }
 
-    function loadSlots(year, month, day) {
+    function loadSlots(y, m, d) {
       google.script.run
         .withSuccessHandler(slots => {
-          let html = `<h3 style="margin:25px 0 15px;">${month}월 ${day}일 가능한 시간</h3>`;
-          
+          let html = `<h3>${m}월 ${d}일 가능한 시간</h3>`;
           if (slots.length === 0) {
-            html += `<p style="color:#d32f2f; text-align:center; padding:30px;">해당일 모든 시간이 마감되었습니다.</p>`;
+            html += `<p style="color:red; padding:20px;">해당일은 예약이 마감되었습니다.</p>`;
           } else {
-            slots.forEach(slot => {
-              html += `
-                <div class="slot" onclick="book('${year}-${month.toString().padStart(2,'0')}-${day.toString().padStart(2,'0')}', '${slot.time}')">
-                  <span>${slot.time} ~ ${parseInt(slot.time) + 1}:00</span>
-                  <span class="available">예약가능</span>
-                </div>`;
+            slots.forEach(s => {
+              html += `<div class="slot" onclick="book('${y}-${m.toString().padStart(2,0)}-${d.toString().padStart(2,0)}', '${s.time}')">
+                         <span>${s.time} ~ ${parseInt(s.time)+1}:00</span>
+                         <span class="available">예약가능</span>
+                       </div>`;
             });
           }
           document.getElementById('slots').innerHTML = html;
         })
-        .getAvailableSlots(year, month, day);
+        .getAvailableSlots(y, m, d);
     }
 
     function book(dateStr, timeStr) {
       const name = prompt("성함을 입력해주세요");
-      const phone = prompt("연락처를 입력해주세요", "010-2213-3907");
-      const memo = prompt("상담 희망사항 (선택)", "");
-
+      const phone = prompt("연락처", "010-2213-3907");
       if (!name || !phone) return alert("성함과 연락처는 필수입니다.");
 
+      const memo = prompt("상담 희망사항 (선택)", "");
+
       google.script.run
-        .withSuccessHandler(res => {
-          if (res.success) {
-            alert(`🎉 ${res.message} 예약이 완료되었습니다!\n\nGoogle Calendar에 등록되었습니다.`);
-            location.reload(); // 새로고침하여 최신 상태 반영
+        .withSuccessHandler(r => {
+          if (r.success) {
+            alert(`🎉 ${r.message} 예약이 완료되었습니다!\nGoogle Calendar에 등록되었습니다.`);
           } else {
-            alert("예약 실패: " + res.message);
+            alert("오류 발생: " + r.message);
           }
         })
         .bookAppointment(dateStr, timeStr, name, phone, memo);
-    }
-
-    function prevMonth() {
-      currentMonth--;
-      if (currentMonth < 1) { currentMonth = 12; currentYear--; }
-      renderCalendar();
-    }
-
-    function nextMonth() {
-      currentMonth++;
-      if (currentMonth > 12) { currentMonth = 1; currentYear++; }
-      renderCalendar();
     }
 
     window.onload = renderCalendar;
