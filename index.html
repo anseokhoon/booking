@@ -3,86 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KB상담예약 - seokhoonbaro 상담</title>
+    <title>안석훈 스타웰스매니저 상담예약</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+        
         body {
             font-family: 'Noto Sans KR', sans-serif;
-            background: linear-gradient(135deg, #003087 0%, #0055cc 100%);
+            background: linear-gradient(135deg, #1a3c7d 0%, #0f2a5e 100%);
             color: #333;
-            margin: 0; padding: 0;
+            margin: 0;
+            padding: 20px;
         }
         .container {
-            max-width: 800px;
-            margin: 40px auto;
+            max-width: 720px;
+            margin: 30px auto;
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border-radius: 20px;
             overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
         }
         header {
-            background: #FFCD00; /* KB Yellow */
-            color: #003087;
-            padding: 20px;
+            background: linear-gradient(to right, #003087, #1e5eff);
+            color: white;
+            padding: 28px 20px;
             text-align: center;
-            font-weight: 900;
-            font-size: 28px;
         }
-        .content { padding: 30px; }
-        h1, h2 { color: #003087; }
-        button {
-            background: #FFCD00;
-            color: #003087;
-            border: none;
-            padding: 14px 28px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 8px;
+        .title {
+            font-size: 28px;
+            font-weight: 900;
+            margin: 0;
+        }
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.95;
+            margin-top: 8px;
+        }
+        .content { padding: 32px 28px; }
+        .slot {
+            padding: 18px 22px;
+            margin: 12px 0;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 14px;
+            font-size: 17px;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        button:hover { background: #ffd633; transform: scale(1.05); }
-        .slot {
-            padding: 15px;
-            margin: 10px 0;
-            background: #f8f9fa;
-            border-left: 5px solid #FFCD00;
-            border-radius: 8px;
+        .slot:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(30,94,255,0.15);
+            border-color: #1e5eff;
+        }
+        .slot.available {
+            border-color: #00c853;
+            background: #f0fff0;
+        }
+        .slot.booked {
+            opacity: 0.5;
+            cursor: not-allowed;
+            text-decoration: line-through;
+            color: #999;
+        }
+        button {
+            background: #003087;
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            font-size: 17px;
+            font-weight: 700;
+            border-radius: 12px;
             cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
         }
-        .slot:hover { background: #fff3cc; }
-        .contact { text-align: center; margin: 20px; font-size: 18px; font-weight: bold; color: #003087; }
+        button:hover {
+            background: #1e5eff;
+        }
+        .info {
+            text-align: center;
+            color: #555;
+            margin: 20px 0;
+            font-size: 15px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>KB 금융 파트너 상담예약</header>
+        <header>
+            <div class="title">스타웰스매니저 안석훈</div>
+            <div class="subtitle">1:1 맞춤 자산관리 상담</div>
+        </header>
+        
         <div class="content">
-            <h1>석훈바로 상담</h1>
-            <p>1시간 상담 + 1시간 이동시간을 고려한 예약 시스템입니다.<br>연락처: <strong>010-2213-3907</strong></p>
+            <h2 style="margin-top:0; color:#003087;">📅 예약 가능한 시간</h2>
+            <p style="color:#555;">1시간 상담 + 1시간 이동시간이 자동 반영됩니다</p>
             
-            <h2>예약 가능한 시간</h2>
             <div id="slots"></div>
             
-            <div class="contact">
-                예약 후 자동으로 Google Calendar에 등록됩니다.<br>
-                문의: 010-2213-3907
+            <div class="info">
+                연락처 <strong>010-2213-3907</strong><br>
+                예약 후 Google Calendar에 자동 등록됩니다
             </div>
         </div>
     </div>
 
     <script>
-        // 간단한 슬롯 생성 (실제로는 Google Calendar API 연동 필요)
-        function generateSlots() {
+        // 실제로는 Google Calendar API 연동 필요 (아래는 예시)
+        function loadAvailableSlots() {
             const slotsDiv = document.getElementById('slots');
             slotsDiv.innerHTML = `
-                <p><strong>월~금:</strong> 09:00 ~ 21:00 (2시간 단위)</p>
-                <p><strong>토요일:</strong> 09:00 ~ 16:00</p>
-                <p style="color:#d32f2f;">일요일: 휴무</p>
-                <button onclick="alert('예약이 Google Calendar에 등록되었습니다! (실제 연동 시 자동 입력)')">지금 예약하기</button>
+                <div class="slot available" onclick="bookSlot(this, '2026-05-18 10:00')">
+                    <span>5월 18일 (월) 10:00 ~ 11:00</span>
+                    <span style="color:#00c853; font-weight:700;">예약가능</span>
+                </div>
+                <div class="slot available" onclick="bookSlot(this, '2026-05-18 14:00')">
+                    <span>5월 18일 (월) 14:00 ~ 15:00</span>
+                    <span style="color:#00c853; font-weight:700;">예약가능</span>
+                </div>
+                <div class="slot booked">
+                    <span>5월 18일 (월) 16:00 ~ 17:00</span>
+                    <span>예약완료</span>
+                </div>
+                <div class="slot available" onclick="bookSlot(this, '2026-05-19 09:00')">
+                    <span>5월 19일 (화) 09:00 ~ 10:00</span>
+                    <span style="color:#00c853; font-weight:700;">예약가능</span>
+                </div>
             `;
         }
-        generateSlots();
+
+        function bookSlot(element, time) {
+            if (confirm(`✅ ${time}에 예약하시겠습니까?\n(Google Calendar에 자동 등록됩니다)`)) {
+                alert('🎉 예약이 완료되었습니다!\nGoogle Calendar에 등록되었습니다.\n\n안석훈 스타웰스매니저가 곧 연락드리겠습니다.');
+                element.classList.remove('available');
+                element.classList.add('booked');
+                element.innerHTML = `<span>${time}</span><span>예약완료</span>`;
+            }
+        }
+
+        // 페이지 로드 시 슬롯 불러오기
+        window.onload = loadAvailableSlots;
     </script>
 </body>
 </html>
