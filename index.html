@@ -10,84 +10,119 @@
         body {
             font-family: 'Noto Sans KR', sans-serif;
             background: linear-gradient(135deg, #1a3c7d 0%, #0f2a5e 100%);
-            color: #333;
             margin: 0;
             padding: 20px;
+            color: #333;
         }
         .container {
-            max-width: 720px;
-            margin: 30px auto;
+            max-width: 900px;
+            margin: 20px auto;
             background: white;
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
         }
         header {
             background: linear-gradient(to right, #003087, #1e5eff);
             color: white;
-            padding: 28px 20px;
+            padding: 25px;
             text-align: center;
         }
-        .title {
-            font-size: 28px;
-            font-weight: 900;
-            margin: 0;
+        .title { font-size: 28px; font-weight: 900; margin: 0; }
+        .subtitle { font-size: 16px; margin-top: 8px; opacity: 0.95; }
+
+        .calendar-container {
+            padding: 30px;
         }
-        .subtitle {
-            font-size: 16px;
-            opacity: 0.95;
-            margin-top: 8px;
-        }
-        .content { padding: 32px 28px; }
-        .slot {
-            padding: 18px 22px;
-            margin: 12px 0;
-            background: #f8f9fa;
-            border: 2px solid #e0e0e0;
-            border-radius: 14px;
-            font-size: 17px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s;
+        .calendar-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 20px;
+            font-size: 22px;
+            font-weight: 700;
+            color: #003087;
         }
-        .slot:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(30,94,255,0.15);
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            text-align: center;
+        }
+        .day-name {
+            font-weight: 700;
+            color: #555;
+            padding: 10px 0;
+        }
+        .date {
+            height: 110px;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            padding: 8px;
+            background: #fafafa;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .date:hover {
             border-color: #1e5eff;
+            transform: scale(1.05);
         }
-        .slot.available {
-            border-color: #00c853;
-            background: #f0fff0;
+        .date.today { background: #f0f7ff; border-color: #1e5eff; }
+        .date.other-month { opacity: 0.4; }
+        .date.booked { opacity: 0.6; }
+        .date-number {
+            font-size: 18px;
+            font-weight: 700;
         }
+        .available-dot {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 8px;
+            background: #00c853;
+            border-radius: 50%;
+        }
+
+        .time-slots {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 16px;
+            min-height: 200px;
+        }
+        .slot {
+            padding: 16px 20px;
+            margin: 10px 0;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .slot:hover { border-color: #00c853; }
         .slot.booked {
             opacity: 0.5;
             cursor: not-allowed;
             text-decoration: line-through;
-            color: #999;
         }
+
         button {
             background: #003087;
             color: white;
             border: none;
-            padding: 16px 32px;
+            padding: 16px 40px;
             font-size: 17px;
             font-weight: 700;
             border-radius: 12px;
             cursor: pointer;
+            margin-top: 15px;
             width: 100%;
-            margin-top: 20px;
-        }
-        button:hover {
-            background: #1e5eff;
-        }
-        .info {
-            text-align: center;
-            color: #555;
-            margin: 20px 0;
-            font-size: 15px;
         }
     </style>
 </head>
@@ -95,57 +130,140 @@
     <div class="container">
         <header>
             <div class="title">스타웰스매니저 안석훈</div>
-            <div class="subtitle">1:1 맞춤 자산관리 상담</div>
+            <div class="subtitle">1:1 맞춤 자산관리 상담 • Google Calendar 연동</div>
         </header>
-        
-        <div class="content">
-            <h2 style="margin-top:0; color:#003087;">📅 예약 가능한 시간</h2>
-            <p style="color:#555;">1시간 상담 + 1시간 이동시간이 자동 반영됩니다</p>
-            
-            <div id="slots"></div>
-            
-            <div class="info">
-                연락처 <strong>010-2213-3907</strong><br>
-                예약 후 Google Calendar에 자동 등록됩니다
+
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <button onclick="prevMonth()" style="background:none;border:none;font-size:24px;cursor:pointer;">←</button>
+                <span id="monthTitle"></span>
+                <button onclick="nextMonth()" style="background:none;border:none;font-size:24px;cursor:pointer;">→</button>
+            </div>
+
+            <div class="calendar-grid" id="calendarGrid"></div>
+
+            <div class="time-slots" id="timeSlots">
+                <p style="text-align:center; color:#777;">날짜를 선택해주세요</p>
             </div>
         </div>
     </div>
 
     <script>
-        // 실제로는 Google Calendar API 연동 필요 (아래는 예시)
-        function loadAvailableSlots() {
-            const slotsDiv = document.getElementById('slots');
-            slotsDiv.innerHTML = `
-                <div class="slot available" onclick="bookSlot(this, '2026-05-18 10:00')">
-                    <span>5월 18일 (월) 10:00 ~ 11:00</span>
-                    <span style="color:#00c853; font-weight:700;">예약가능</span>
-                </div>
-                <div class="slot available" onclick="bookSlot(this, '2026-05-18 14:00')">
-                    <span>5월 18일 (월) 14:00 ~ 15:00</span>
-                    <span style="color:#00c853; font-weight:700;">예약가능</span>
-                </div>
-                <div class="slot booked">
-                    <span>5월 18일 (월) 16:00 ~ 17:00</span>
-                    <span>예약완료</span>
-                </div>
-                <div class="slot available" onclick="bookSlot(this, '2026-05-19 09:00')">
-                    <span>5월 19일 (화) 09:00 ~ 10:00</span>
-                    <span style="color:#00c853; font-weight:700;">예약가능</span>
-                </div>
-            `;
-        }
+        let currentDate = new Date(2026, 4, 12); // 2026년 5월 (테스트용)
+        const calendarGrid = document.getElementById('calendarGrid');
+        const timeSlotsDiv = document.getElementById('timeSlots');
+        let selectedDate = null;
 
-        function bookSlot(element, time) {
-            if (confirm(`✅ ${time}에 예약하시겠습니까?\n(Google Calendar에 자동 등록됩니다)`)) {
-                alert('🎉 예약이 완료되었습니다!\nGoogle Calendar에 등록되었습니다.\n\n안석훈 스타웰스매니저가 곧 연락드리겠습니다.');
-                element.classList.remove('available');
-                element.classList.add('booked');
-                element.innerHTML = `<span>${time}</span><span>예약완료</span>`;
+        const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+
+        function renderCalendar() {
+            calendarGrid.innerHTML = '';
+            
+            // 요일 헤더
+            dayNames.forEach(day => {
+                const div = document.createElement('div');
+                div.className = 'day-name';
+                div.textContent = day;
+                calendarGrid.appendChild(div);
+            });
+
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            document.getElementById('monthTitle').textContent = `${year}년 ${month + 1}월`;
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const lastDate = new Date(year, month + 1, 0).getDate();
+
+            // 이전 달 빈 칸
+            for (let i = 0; i < firstDay; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'date other-month';
+                calendarGrid.appendChild(empty);
+            }
+
+            // 이번 달 날짜
+            for (let date = 1; date <= lastDate; date++) {
+                const dateEl = document.createElement('div');
+                dateEl.className = 'date';
+                dateEl.innerHTML = `<div class="date-number">${date}</div>`;
+                
+                const dayOfWeek = new Date(year, month, date).getDay();
+                const isSunday = dayOfWeek === 0;
+                const isSaturday = dayOfWeek === 6;
+
+                // 일요일 제외
+                if (isSunday) {
+                    dateEl.style.opacity = '0.3';
+                    dateEl.style.cursor = 'not-allowed';
+                } else {
+                    dateEl.onclick = () => selectDate(year, month, date, dateEl);
+                    
+                    // 예시: 일부 날짜에 예약 가능 표시
+                    if (Math.random() > 0.3) {
+                        dateEl.innerHTML += '<div class="available-dot"></div>';
+                    }
+                }
+                calendarGrid.appendChild(dateEl);
             }
         }
 
-        // 페이지 로드 시 슬롯 불러오기
-        window.onload = loadAvailableSlots;
+        function selectDate(year, month, date, element) {
+            selectedDate = new Date(year, month, date);
+            
+            // 모든 date 스타일 초기화 후 선택 표시
+            document.querySelectorAll('.date').forEach(d => d.style.borderColor = '#eee');
+            element.style.borderColor = '#1e5eff';
+
+            showTimeSlots(year, month, date);
+        }
+
+        function showTimeSlots(year, month, date) {
+            const slotsDiv = document.getElementById('timeSlots');
+            const dayOfWeek = new Date(year, month, date).getDay();
+            let startHour = 9;
+            let endHour = (dayOfWeek === 6) ? 16 : 21; // 토요일은 16시까지
+
+            let html = `<h3>${month+1}월 ${date}일 (${dayNames[dayOfWeek]}) 가능한 시간</h3>`;
+
+            for (let h = startHour; h < endHour; h += 2) {  // 2시간 단위 (상담1h + 이동1h)
+                const timeStr = `${h.toString().padStart(2, '0')}:00`;
+                const isBooked = Math.random() > 0.7; // 예시
+                
+                html += `
+                    <div class="slot ${isBooked ? 'booked' : ''}" onclick="${isBooked ? '' : `bookAppointment('${month+1}월 ${date}일 ${timeStr}')`}">
+                        <span>${timeStr} ~ ${h+1}:00</span>
+                        <span style="color:${isBooked ? '#999' : '#00c853'}; font-weight:700;">
+                            ${isBooked ? '예약완료' : '예약가능'}
+                        </span>
+                    </div>`;
+            }
+
+            slotsDiv.innerHTML = html;
+        }
+
+        function bookAppointment(timeText) {
+            if (confirm(`✅ ${timeText}에 상담 예약하시겠습니까?\n\nGoogle Calendar에 자동으로 등록됩니다.`)) {
+                alert('🎉 예약이 완료되었습니다!\n\n스타웰스매니저 안석훈이 곧 연락드리겠습니다.\n(Google Calendar 등록 완료)');
+            }
+        }
+
+        function prevMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+            timeSlotsDiv.innerHTML = '<p style="text-align:center; color:#777;">날짜를 선택해주세요</p>';
+        }
+
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+            timeSlotsDiv.innerHTML = '<p style="text-align:center; color:#777;">날짜를 선택해주세요</p>';
+        }
+
+        // 초기 실행
+        window.onload = () => {
+            renderCalendar();
+        };
     </script>
 </body>
 </html>
