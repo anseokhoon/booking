@@ -1,396 +1,66 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>안석훈 웰스매니저 | 프라이빗 상담 예약</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Cinzel:wght@500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --navy: #0a2d72;
-      --navy-mid: #1e3f8c;
-      --gold: #b89f5e;
-      --gold-light: #d4b97c;
-      --cream: #f8f5ef;
-      --white: #ffffff;
-      --text-primary: #0a2d72;
-      --text-secondary: #334155;
-      --border: #e2d9c8;
-      --radius: 20px;
-      --shadow: 0 12px 40px rgba(10,45,114,0.12);
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Noto Sans KR', sans-serif;
-      background: var(--cream);
-      color: var(--text-primary);
-    }
-
-    .hero {
-      background: linear-gradient(135deg, var(--navy) 0%, #0f3a8a 100%);
-      padding: 70px 24px 80px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-    .hero::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: radial-gradient(ellipse at 50% 20%, rgba(212,185,124,0.25) 0%, transparent 70%);
-    }
-    .hero-badge {
-      font-family: 'Cinzel', serif;
-      font-size: 0.8rem;
-      letter-spacing: 0.4em;
-      color: var(--gold);
-      border: 1px solid rgba(184,159,94,0.6);
-      padding: 8px 26px;
-      border-radius: 999px;
-      display: inline-block;
-      margin-bottom: 16px;
-    }
-    .hero h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(2.2rem, 7vw, 3.2rem);
-      font-weight: 700;
-      color: white;
-      line-height: 1.1;
-    }
-    .hero h1 span { color: var(--gold-light); }
-
-    .steps {
-      background: var(--navy-mid);
-      padding: 20px 24px;
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      color: rgba(255,255,255,0.75);
-      font-weight: 500;
-    }
-    .step-item.active { color: var(--gold); }
-
-    .card {
-      background: white;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      margin-bottom: 28px;
-      border: 1px solid var(--border);
-    }
-    .card-header {
-      padding: 28px 32px 22px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-    .card-title {
-      font-family: 'Cinzel', serif;
-      font-size: 1.4rem;
-      font-weight: 600;
-      color: var(--navy);
-    }
-
-    .time-slot {
-      border: 2px solid #e2d9c8;
-      border-radius: 12px;
-      padding: 14px 10px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.25s;
-    }
-    .time-slot:hover:not(.busy) {
-      border-color: var(--navy);
-      transform: translateY(-3px);
-    }
-    .time-slot.selected {
-      background: rgba(10,45,114,0.08);
-      border-color: var(--navy);
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, var(--navy), #1e3f8c);
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      padding: 18px;
-      border: none;
-      border-radius: 14px;
-      color: white;
-      width: 100%;
-      font-size: 1.05rem;
-    }
-  </style>
-</head>
-<body>
-
-<div class="hero">
-  <div class="hero-badge">KB STAR WEALTH MANAGEMENT</div>
-  <h1>안석훈 <span>웰스매니저</span></h1>
-  <p style="color:rgba(255,255,255,0.8); margin-top:12px; font-size:1.05rem;">프라이빗 자산관리 상담 예약</p>
-</div>
-
-<div class="steps">
-  <div class="step-item active" id="step1">① 날짜 선택</div>
-  <div class="step-item" id="step2">② 시간 선택</div>
-  <div class="step-item" id="step3">③ 예약 확정</div>
-</div>
-
-<div style="max-width:920px; margin:-28px auto 80px; padding:0 16px;">
-
-  <!-- Google Calendar 연동 -->
-  <div style="background:white; padding:20px 24px; border-radius:20px; box-shadow:0 8px 30px rgba(10,45,114,0.1); margin-bottom:24px; display:flex; align-items:center; justify-content:space-between;">
-    <div style="display:flex; align-items:center; gap:14px;">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg" width="38" height="38">
-      <div>
-        <strong style="font-size:1.02rem;">Google Calendar</strong><br>
-        <span id="gcal-status-text" style="color:#64748b;">연동하면 일정이 자동으로 추가됩니다</span>
-      </div>
-    </div>
-    <button onclick="toggleGcal()" id="gcal-btn" style="padding:12px 26px; border:2px solid #d4b97c; background:white; border-radius:12px; font-weight:600; cursor:pointer;">
-      <span id="gcal-btn-text">Google 로그인</span>
-    </button>
-  </div>
-
-  <!-- Calendar -->
-  <div class="card">
-    <div class="card-header">
-      <span class="card-title">날짜 선택</span>
-    </div>
-    <div style="padding:24px 28px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; font-size:1.6rem;">
-        <button onclick="prevMonth()" style="background:none; border:none; cursor:pointer;">‹</button>
-        <div id="monthTitle" style="font-family:'Cinzel',serif; font-weight:600; color:var(--navy);">2026년 5월</div>
-        <button onclick="nextMonth()" style="background:none; border:none; cursor:pointer;">›</button>
-      </div>
-      <div id="calendar" style="display:grid; grid-template-columns:repeat(7,1fr); gap:8px; text-align:center;"></div>
-    </div>
-  </div>
-
-  <!-- Time Slots -->
-  <div class="card hidden" id="timeCard">
-    <div class="card-header">
-      <span class="card-title" id="timeCardTitle">시간 선택</span>
-    </div>
-    <div style="padding:28px;">
-      <div style="margin-bottom:28px;">
-        <div style="font-weight:600; color:#64748b; margin-bottom:12px;">오전</div>
-        <div id="morningSlots" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(118px,1fr)); gap:12px;"></div>
-      </div>
-      <div>
-        <div style="font-weight:600; color:#64748b; margin-bottom:12px;">오후</div>
-        <div id="afternoonSlots" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(118px,1fr)); gap:12px;"></div>
-      </div>
-    </div>
-    <div style="padding:0 28px 32px;">
-      <button onclick="openModal()" id="confirmBtn" class="btn-primary" disabled>
-        <span id="confirmBtnText">시간을 선택해주세요</span>
-      </button>
-    </div>
-  </div>
-</div>
-
 <script>
 // ==================== CONFIG ====================
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwXlhqsoRDG3er8GHfea7lGdYize-O4JEDNwN5abc7tG36VA432Nr_kMeTCPwWBqiys/exec";
 const GOOGLE_CLIENT_ID = "555216660049-7qhpo210se6i31pt2i7bkuvodavv3hml.apps.googleusercontent.com";
 
-// ==================== STATE ====================
-let currentYear = 2026;
-let currentMonth = 4;   // 5월
-let selectedDate = null;
-let selectedSlot = null;
 let gcalConnected = false;
+let gcalAccessToken = null;
 
-// ==================== 근무시간 ====================
-function getAvailableHours(date) {
-  const day = date.getDay();
-  if (day === 0) return [];                           // 일요일 휴무
-  if (day === 6) return [9,10,11,12,13,14,15];        // 토요일 ~16시
-  return [9,10,11,12,13,14,15,16,17,18,19,20];        // 평일 ~21시
-}
+// ==================== OAuth 토큰 처리 (가장 중요!) ====================
+function handleOAuthCallback() {
+  const hash = window.location.hash.substring(1);
+  if (!hash) return;
 
-// ==================== 캘린더 ====================
-function renderCalendar() {
-  const title = document.getElementById('monthTitle');
-  title.textContent = `${currentYear}년 ${currentMonth + 1}월`;
+  const params = new URLSearchParams(hash);
+  const accessToken = params.get('access_token');
+  const error = params.get('error');
 
-  const grid = document.getElementById('calendar');
-  grid.innerHTML = '';
-
-  const days = ['일','월','화','수','목','금','토'];
-  days.forEach(d => {
-    const el = document.createElement('div');
-    el.style.padding = '12px 0';
-    el.style.fontWeight = '600';
-    el.style.color = (d==='일') ? '#e11d48' : (d==='토') ? '#2563eb' : '#64748b';
-    el.textContent = d;
-    grid.appendChild(el);
-  });
-
-  const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-  const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
-  const today = new Date();
-
-  for (let i = 0; i < firstDay; i++) grid.appendChild(document.createElement('div'));
-
-  for (let day = 1; day <= lastDate; day++) {
-    const d = new Date(currentYear, currentMonth, day);
-    const isPast = d < new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const isSelected = selectedDate && d.toDateString() === selectedDate.toDateString();
-
-    const cell = document.createElement('div');
-    cell.style.aspectRatio = '1/1';
-    cell.style.display = 'flex';
-    cell.style.alignItems = 'center';
-    cell.style.justifyContent = 'center';
-    cell.style.borderRadius = '14px';
-    cell.style.fontSize = '1.1rem';
-    cell.style.fontWeight = '500';
-    cell.textContent = day;
-
-    if (isPast) cell.style.color = '#94a3b8';
-    if (isSelected) {
-      cell.style.background = 'var(--navy)';
-      cell.style.color = 'white';
-    }
-
-    if (!isPast) cell.onclick = () => selectDate(currentYear, currentMonth, day);
-    grid.appendChild(cell);
+  if (error) {
+    console.error("OAuth Error:", error);
+    alert("Google 로그인 중 오류가 발생했습니다: " + error);
+    return;
   }
-}
 
-function prevMonth() {
-  currentMonth--;
-  if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-  renderCalendar();
-}
-function nextMonth() {
-  currentMonth++;
-  if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-  renderCalendar();
-}
-
-function selectDate(y, m, d) {
-  selectedDate = new Date(y, m, d);
-  selectedSlot = null;
-  renderCalendar();
-
-  document.getElementById('timeCard').classList.remove('hidden');
-  const weekdays = ['일','월','화','수','목','금','토'];
-  document.getElementById('timeCardTitle').textContent = 
-    `${m+1}월 ${d}일 (${weekdays[selectedDate.getDay()]})`;
-
-  showTimeSlots(selectedDate);
-}
-
-// ==================== 시간 슬롯 ====================
-function showTimeSlots(date) {
-  const hours = getAvailableHours(date);
-  const morning = hours.filter(h => h < 12);
-  const afternoon = hours.filter(h => h >= 12);
-
-  renderSlots('morningSlots', morning, date);
-  renderSlots('afternoonSlots', afternoon, date);
-}
-
-function renderSlots(containerId, hours, date) {
-  const container = document.getElementById(containerId);
-  container.innerHTML = '';
-
-  hours.forEach(h => {
-    [0, 30].forEach(min => {
-      const slot = document.createElement('div');
-      slot.className = 'time-slot';
-      const timeStr = `${h < 12 ? '오전' : '오후'} ${h%12||12}:${min.toString().padStart(2,'0')}`;
-
-      slot.innerHTML = `
-        <div style="font-size:1.08rem; font-weight:600;">${h}:${min.toString().padStart(2,'0')}</div>
-        <div style="font-size:0.82rem; color:#22c55e; margin-top:4px;">예약 가능</div>
-      `;
-
-      slot.onclick = () => selectSlot(date, h, min, slot, timeStr);
-      container.appendChild(slot);
-    });
-  });
-}
-
-function selectSlot(date, h, m, el, timeStr) {
-  document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
-  el.classList.add('selected');
-
-  selectedSlot = { date, h, m, timeStr };
-  document.getElementById('confirmBtn').disabled = false;
-  document.getElementById('confirmBtnText').textContent = `${timeStr} 예약 확정`;
-}
-
-// ==================== Google Calendar 연동 ====================
-function toggleGcal() {
-  if (gcalConnected) {
-    gcalConnected = false;
-    document.getElementById('gcal-btn-text').textContent = 'Google 로그인';
-    document.getElementById('gcal-status-text').textContent = '연동하면 일정이 자동으로 추가됩니다';
-  } else {
-    const scope = encodeURIComponent("https://www.googleapis.com/auth/calendar");
-    const redirectUri = encodeURIComponent(window.location.href.split('?')[0]);
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}`;
-    window.open(authUrl, '_blank', 'width=500,height=650');
-    
-    // 데모용 (실제 배포 시 token 처리 필요)
+  if (accessToken) {
+    gcalAccessToken = accessToken;
     gcalConnected = true;
+    
     document.getElementById('gcal-btn-text').textContent = '연결됨 ✓';
     document.getElementById('gcal-status-text').textContent = 'Google Calendar 연동 완료';
+    
+    // URL 해시 제거 (보안)
+    window.history.replaceState({}, document.title, window.location.pathname);
+    
+    alert("✅ Google Calendar가 성공적으로 연동되었습니다!");
   }
 }
 
-// ==================== 예약 모달 & 제출 ====================
-function openModal() {
-  if (!selectedSlot) return;
-  alert("예약 모달이 열립니다.\n(실제 구현 시 모달 UI 추가 가능)");
-  submitBooking();
-}
+// 페이지 로드 시 토큰 확인
+window.addEventListener('load', handleOAuthCallback);
 
-async function submitBooking() {
-  if (!selectedSlot) return;
-
-  const name = prompt("성함을 입력해주세요", "홍길동");
-  const phone = prompt("연락처를 입력해주세요", "010-1234-5678");
-  if (!name || !phone) return alert("성함과 연락처는 필수입니다.");
-
-  const note = prompt("상담 목적 (선택)", "");
-
-  const payload = {
-    action: "book",
-    name: name,
-    phone: phone,
-    note: note,
-    date: selectedSlot.date.toISOString().split('T')[0],
-    hour: selectedSlot.h,
-    minute: selectedSlot.m
-  };
-
-  try {
-    const res = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify(payload),
-      headers: { 'Content-Type': 'application/json' }
-    });
-
-    const result = await res.json();
-    if (result.success) {
-      alert(`✅ 예약이 완료되었습니다!\n\n${name}님\n${selectedSlot.timeStr}`);
-      // 성공 후 초기화
-      location.reload();
-    } else {
-      alert("예약 실패: " + result.message);
+// ==================== Google 로그인 ====================
+function toggleGcal() {
+  if (gcalConnected) {
+    if (confirm("Google Calendar 연동을 해제하시겠습니까?")) {
+      gcalConnected = false;
+      gcalAccessToken = null;
+      document.getElementById('gcal-btn-text').textContent = 'Google 로그인';
+      document.getElementById('gcal-status-text').textContent = '연동하면 일정이 자동으로 추가됩니다';
     }
-  } catch (e) {
-    alert("서버 연결 오류가 발생했습니다.");
-    console.error(e);
+    return;
   }
-}
 
-// ==================== INIT ====================
-renderCalendar();
+  const redirectUri = encodeURIComponent(window.location.href.split('?')[0]);
+  const scope = encodeURIComponent("https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar");
+  
+  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+    `client_id=${GOOGLE_CLIENT_ID}&` +
+    `redirect_uri=${redirectUri}&` +
+    `response_type=token&` +
+    `scope=${scope}&` +
+    `prompt=consent`;
+
+  window.location.href = authUrl;   // 같은 창에서 열기 (팝업 차단 방지)
+}
 </script>
-</body>
-</html>
+
