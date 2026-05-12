@@ -2,6 +2,7 @@
 <html>
 <head>
   <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <?!= include('Style'); ?>
 </head>
 <body>
@@ -13,8 +14,15 @@
 
     <div class="content">
       <h2>📅 상담 예약하기</h2>
-      <div id="calendar"></div>
+      
+      <div id="calendar" class="date-grid"></div>
+      
       <div id="slots"></div>
+      
+      <div class="info">
+        연락처 <strong>010-2213-3907</strong><br>
+        예약 후 Google Calendar에 자동 등록됩니다
+      </div>
     </div>
   </div>
 
@@ -23,33 +31,43 @@
     let currentMonth = 5;
 
     function renderCalendar() {
-      // 여기서는 간단히 날짜 선택 UI로 대체 (더 예쁘게 원하시면 말씀해주세요)
-      let html = `<h3>${currentYear}년 ${currentMonth}월</h3>`;
-      html += `<button onclick="prevMonth()">← 이전</button>`;
-      html += `<button onclick="nextMonth()">다음 →</button><br><br>`;
+      let html = `<h3 style="text-align:center; color:#003087;">${currentYear}년 ${currentMonth}월</h3>`;
+      html += `<div style="text-align:center; margin:15px 0;">
+                 <button onclick="prevMonth()" style="margin:0 8px; padding:10px 16px;">← 이전</button>
+                 <button onclick="nextMonth()" style="margin:0 8px; padding:10px 16px;">다음 →</button>
+               </div>`;
 
+      html += `<div class="date-grid">`;
+      
       for (let d = 1; d <= 31; d++) {
         const date = new Date(currentYear, currentMonth-1, d);
         if (date.getMonth() !== currentMonth-1) break;
         if (date.getDay() === 0) continue; // 일요일 제외
 
-        html += `<button class="date-btn" onclick="loadSlots(${currentYear},${currentMonth},${d})">${d}일</button>`;
+        html += `
+          <button class="date-btn" onclick="loadSlots(${currentYear}, ${currentMonth}, ${d})">
+            ${d}일<br>
+            <small>${['일','월','화','수','목','금','토'][date.getDay()]}</small>
+          </button>`;
       }
+      html += `</div>`;
+      
       document.getElementById('calendar').innerHTML = html;
     }
 
     function loadSlots(year, month, day) {
       google.script.run
         .withSuccessHandler(slots => {
-          let html = `<h3>${month}월 ${day}일 가능한 시간</h3>`;
+          let html = `<h3 style="margin:25px 0 15px;">${month}월 ${day}일 가능한 시간</h3>`;
+          
           if (slots.length === 0) {
-            html += `<p style="color:red;">해당일 모든 시간이 마감되었습니다.</p>`;
+            html += `<p style="color:#d32f2f; text-align:center; padding:30px;">해당일 모든 시간이 마감되었습니다.</p>`;
           } else {
             slots.forEach(slot => {
               html += `
                 <div class="slot" onclick="book('${year}-${month.toString().padStart(2,'0')}-${day.toString().padStart(2,'0')}', '${slot.time}')">
-                  ${slot.time} ~ ${parseInt(slot.time)+1}:00 
-                  <span class="available">예약 가능</span>
+                  <span>${slot.time} ~ ${parseInt(slot.time) + 1}:00</span>
+                  <span class="available">예약가능</span>
                 </div>`;
             });
           }
@@ -60,25 +78,34 @@
 
     function book(dateStr, timeStr) {
       const name = prompt("성함을 입력해주세요");
-      const phone = prompt("연락처", "010-2213-3907");
+      const phone = prompt("연락처를 입력해주세요", "010-2213-3907");
       const memo = prompt("상담 희망사항 (선택)", "");
 
-      if (!name || !phone) return;
+      if (!name || !phone) return alert("성함과 연락처는 필수입니다.");
 
       google.script.run
         .withSuccessHandler(res => {
           if (res.success) {
-            alert(`🎉 ${res.message} 예약이 완료되었습니다!\nGoogle Calendar에 등록되었습니다.`);
-            location.reload();
+            alert(`🎉 ${res.message} 예약이 완료되었습니다!\n\nGoogle Calendar에 등록되었습니다.`);
+            location.reload(); // 새로고침하여 최신 상태 반영
           } else {
-            alert("오류: " + res.message);
+            alert("예약 실패: " + res.message);
           }
         })
         .bookAppointment(dateStr, timeStr, name, phone, memo);
     }
 
-    function prevMonth() { currentMonth--; if(currentMonth<1){currentMonth=12; currentYear--;} renderCalendar(); }
-    function nextMonth() { currentMonth++; if(currentMonth>12){currentMonth=1; currentYear++;} renderCalendar(); }
+    function prevMonth() {
+      currentMonth--;
+      if (currentMonth < 1) { currentMonth = 12; currentYear--; }
+      renderCalendar();
+    }
+
+    function nextMonth() {
+      currentMonth++;
+      if (currentMonth > 12) { currentMonth = 1; currentYear++; }
+      renderCalendar();
+    }
 
     window.onload = renderCalendar;
   </script>
