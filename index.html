@@ -8,7 +8,7 @@
     :root { --primary: #0f172a; }
     body { 
       font-family: 'Noto Sans KR', system-ui, sans-serif; 
-      margin: 0; padding: 0; background: #f8fafc; 
+      margin: 0; background: #f8fafc; 
     }
     .header {
       background: linear-gradient(135deg, #0f172a, #1e40af);
@@ -17,131 +17,40 @@
       text-align: center;
     }
     .container { max-width: 640px; margin: 0 auto; padding: 15px; }
-    .calendar-container {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-      overflow: hidden;
+    .calendar-container, .time-slots { 
+      background: white; 
+      border-radius: 16px; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+      margin-bottom: 20px; 
     }
-    .calendar-header {
-      padding: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #f1f5f9;
+    .calendar-header { 
+      padding: 20px; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      background: #f1f5f9; 
     }
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 5px;
-      padding: 15px;
+    .calendar-grid { 
+      display: grid; 
+      grid-template-columns: repeat(7, 1fr); 
+      gap: 5px; 
+      padding: 15px; 
     }
-    .day-name { text-align: center; font-weight: 600; color: #64748b; padding: 8px 0; }
-    .date {
-      height: 65px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 12px;
-      font-size: 1.1rem;
-      cursor: pointer;
-      background: white;
+    .day-name { text-align: center; font-weight: 600; color: #64748b; padding: 10px 0; }
+    .date { 
+      height: 68px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      border-radius: 12px; 
+      font-size: 1.1rem; 
+      cursor: pointer; 
+      background: white; 
     }
     .date:hover { background: #f1f5f9; }
     .date.today { background: #bae6fd; font-weight: bold; }
     
-    .time-slots {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      padding: 25px;
-      display: none;
-    }
     .time-btn {
       padding: 18px;
       margin: 8px 0;
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      text-align: center;
-      cursor: pointer;
-    }
-    .time-btn.available { border-color: #10b981; }
-    .time-btn.selected { background: var(--primary); color: white; }
-    button.book {
-      width: 100%;
-      padding: 20px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 1.2rem;
-      margin-top: 15px;
-    }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <h1>KB STAR WEALTH MANAGER</h1>
-    <p style="font-size:1.3rem; margin:8px 0 0;">안석훈 웰스매니저</p>
-  </div>
-
-  <div class="container">
-    <h2 style="text-align:center; margin:25px 0 15px;">📅 상담 일정 예약</h2>
-
-    <div class="calendar-container">
-      <div class="calendar-header">
-        <button onclick="prevMonth()" style="font-size:1.8rem; background:none; border:none;">←</button>
-        <h2 id="monthTitle" style="margin:0;">2026년 5월</h2>
-        <button onclick="nextMonth()" style="font-size:1.8rem; background:none; border:none;">→</button>
-      </div>
-      <div class="calendar-grid" id="calendar"></div>
-    </div>
-
-    <div id="timeSlots" class="time-slots">
-      <h3 id="selectedDateTitle" style="text-align:center; margin-bottom:20px;"></h3>
-      <div id="timeGrid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:12px;"></div>
-      <button class="book" onclick="confirmBooking()">✅ 이 시간으로 예약하기</button>
-    </div>
-  </div>
-
-  <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwDWdBxpVsYOSfOYk1YCNK8wlrKnoidzRoVhCdnQP3QuK7BWiuOWe9z56Cqj68UgdEuOA/exec";
-    let currentDate = new Date(2026, 4, 12);
-    let selectedSlot = null;
-
-    function renderCalendar() {
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth();
-      document.getElementById('monthTitle').textContent = `${year}년 ${month+1}월`;
-
-      let html = '';
-      ['일','월','화','수','목','금','토'].forEach(day => {
-        html += `<div class="day-name">${day}</div>`;
-      });
-
-      const firstDay = new Date(year, month, 1).getDay();
-      for (let i = 0; i < firstDay; i++) {
-        html += `<div class="date" style="color:#ddd;"> </div>`;
-      }
-
-      for (let day = 1; day <= 31; day++) {
-        html += `<div class="date" onclick="selectDate(${year}, ${month}, ${day})">${day}</div>`;
-      }
-      document.getElementById('calendar').innerHTML = html;
-    }
-
-    function selectDate(year, month, day) {
-      const date = new Date(year, month, day);
-      document.getElementById('selectedDateTitle').textContent = 
-        `${month+1}월 ${day}일 (${['일','월','화','수','목','금','토'][date.getDay()]})`;
-      
-      document.getElementById('timeSlots').style.display = 'block';
-      showTimeSlots(date);
-    }
-
-    function showTimeSlots(date) {
-      const grid = document.getElementById('timeGrid');
-      grid.innerHTML = '';
-      const dow = date.getDay();
-      if (dow === 0) {
+      border: 2px solid
