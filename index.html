@@ -1,86 +1,996 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { font-family: 'Noto Sans KR', sans-serif; background:#f4f7fa; margin:0; padding:0; }
-    .header { background: linear-gradient(to right, #003087, #1e5eff); color:white; padding:20px; text-align:center; }
-    .title { font-size:24px; font-weight:900; }
-    .content { padding:20px; max-width:720px; margin:auto; }
-    .date-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(70px,1fr)); gap:12px; margin:20px 0; }
-    .date-btn { padding:16px 10px; background:white; border:2px solid #ddd; border-radius:12px; font-size:17px; font-weight:bold; }
-    .slot { padding:20px; background:white; border:2px solid #eee; border-radius:14px; margin:12px 0; font-size:17.5px; display:flex; justify-content:space-between; align-items:center; }
-    .available { color:#00c853; font-weight:bold; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+<meta name="theme-color" content="#FFBC00" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="format-detection" content="telephone=yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<title>KB금융 스타웰스매니저 안석훈 | 1:1 프리미엄 자산상담 예약</title>
+<meta name="description" content="KB금융 스타웰스매니저 안석훈과 함께하는 1:1 맞춤 자산관리 상담. 지금 예약하고 평생 자산 로드맵을 받아보세요." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/[email protected]/dist/web/static/pretendard.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --kb-yellow:#FFBC00;
+    --kb-yellow-deep:#FFCC00;
+    --kb-dark:#60584C;
+    --kb-dark-2:#3B3B3B;
+    --kb-gray:#8C8C8C;
+    --kb-bg:#FFFBEF;
+    --kb-card:#ffffff;
+    --kb-line:#EFE7D2;
+    --kb-soft:#FFF6DC;
+    --radius:18px;
+    --shadow:0 8px 28px rgba(96,88,76,.08);
+    --shadow-strong:0 14px 40px rgba(96,88,76,.18);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;}
+  html,body{margin:0;padding:0;font-family:'Pretendard','Noto Sans KR',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--kb-dark-2);background:var(--kb-bg);overflow-x:hidden;width:100%;}
+  html{scroll-behavior:smooth;}
+  body{min-height:100vh;min-height:100dvh;}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;touch-action:manipulation;-webkit-appearance:none;}
+  input,select,textarea{font-family:inherit;-webkit-appearance:none;border-radius:0;}
+  a{color:inherit;text-decoration:none;-webkit-touch-callout:none;}
+  img{max-width:100%;height:auto;}
+
+  /* Header */
+  header{position:sticky;top:0;z-index:100;background:rgba(255,251,239,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--kb-line);}
+  .nav{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px 24px;}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:var(--kb-dark);}
+  .logo-mark{width:34px;height:34px;border-radius:9px;background:var(--kb-yellow);display:grid;place-items:center;font-weight:900;color:var(--kb-dark);font-size:14px;letter-spacing:-.5px;}
+  .nav .cta{background:var(--kb-dark);color:#fff;padding:10px 18px;border-radius:999px;font-weight:700;font-size:14px;transition:all .2s;}
+  .nav .cta:hover{background:#000;transform:translateY(-1px);}
+
+  /* Hero */
+  .hero{position:relative;overflow:hidden;padding:60px 24px 80px;}
+  .hero-bg{position:absolute;inset:0;background:
+    radial-gradient(900px 500px at 85% -10%, rgba(255,188,0,.35), transparent 60%),
+    radial-gradient(700px 400px at 0% 100%, rgba(255,204,0,.18), transparent 60%);
+    z-index:0;pointer-events:none;}
+  .hero-inner{position:relative;z-index:1;max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;}
+  .badge{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--kb-line);padding:8px 14px;border-radius:999px;font-size:13px;font-weight:700;color:var(--kb-dark);box-shadow:var(--shadow);}
+  .badge .dot{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.18);}
+  h1{font-size:46px;line-height:1.18;margin:18px 0 14px;font-weight:900;color:var(--kb-dark-2);letter-spacing:-1.2px;}
+  h1 .hl{background:linear-gradient(180deg, transparent 60%, var(--kb-yellow) 60%);padding:0 4px;}
+  .lead{font-size:18px;line-height:1.7;color:#5a5446;margin:0 0 28px;max-width:560px;}
+  .hero-cta{display:flex;gap:12px;flex-wrap:wrap;}
+  .btn-primary{background:var(--kb-yellow);color:var(--kb-dark);padding:16px 26px;border-radius:14px;font-weight:900;font-size:16px;box-shadow:0 8px 22px rgba(255,188,0,.45);transition:all .2s;}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(255,188,0,.55);}
+  .btn-ghost{background:#fff;color:var(--kb-dark);padding:16px 22px;border-radius:14px;font-weight:700;font-size:16px;border:1px solid var(--kb-line);}
+  .trust{display:flex;gap:22px;margin-top:32px;flex-wrap:wrap;}
+  .trust .item{display:flex;align-items:center;gap:8px;font-size:14px;color:#6b6354;font-weight:600;}
+  .trust .item span{font-size:18px;}
+
+  /* Profile card */
+  .profile{background:#fff;border-radius:24px;padding:28px;box-shadow:var(--shadow-strong);position:relative;overflow:hidden;}
+  .profile::before{content:"";position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:var(--kb-yellow);border-radius:50%;opacity:.25;}
+  .profile-top{display:flex;align-items:center;gap:18px;position:relative;z-index:1;}
+  .avatar{width:84px;height:84px;border-radius:50%;background:linear-gradient(135deg,var(--kb-yellow),#ffd83b);display:grid;place-items:center;font-weight:900;font-size:30px;color:var(--kb-dark);border:4px solid #fff;box-shadow:0 6px 18px rgba(255,188,0,.4);}
+  .profile-name{font-size:22px;font-weight:900;color:var(--kb-dark-2);}
+  .profile-role{font-size:13px;color:var(--kb-dark);font-weight:700;margin-top:2px;}
+  .stars{color:#FFB400;margin-top:6px;font-size:14px;}
+  .stars span{color:#9c9485;margin-left:6px;font-size:12px;font-weight:600;}
+  .profile-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;}
+  .tag{background:var(--kb-soft);color:var(--kb-dark);padding:6px 12px;border-radius:999px;font-size:12px;font-weight:700;}
+  .profile-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px;border-top:1px dashed var(--kb-line);padding-top:18px;}
+  .stat{text-align:center;}
+  .stat .n{font-size:22px;font-weight:900;color:var(--kb-dark);}
+  .stat .l{font-size:11px;color:var(--kb-gray);margin-top:2px;font-weight:600;}
+
+  /* Sections */
+  section{padding:70px 24px;}
+  .container{max-width:1180px;margin:0 auto;}
+  .section-title{text-align:center;margin-bottom:44px;}
+  .section-title .eyebrow{color:var(--kb-dark);font-weight:800;font-size:13px;letter-spacing:2px;text-transform:uppercase;}
+  .section-title h2{font-size:34px;font-weight:900;margin:10px 0 8px;color:var(--kb-dark-2);letter-spacing:-.8px;}
+  .section-title p{color:#6b6354;font-size:15px;}
+
+  /* Why */
+  .why{background:#fff;}
+  .why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+  .why-card{background:var(--kb-bg);border-radius:var(--radius);padding:24px;text-align:center;transition:all .25s;border:1px solid transparent;}
+  .why-card:hover{transform:translateY(-4px);border-color:var(--kb-yellow);box-shadow:var(--shadow);}
+  .why-card .ico{width:54px;height:54px;border-radius:14px;background:var(--kb-yellow);display:grid;place-items:center;margin:0 auto 14px;font-size:24px;}
+  .why-card h3{font-size:16px;font-weight:800;margin:0 0 8px;color:var(--kb-dark-2);}
+  .why-card p{font-size:13px;color:#6b6354;line-height:1.6;margin:0;}
+
+  /* Services */
+  .services-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .svc{background:#fff;border-radius:var(--radius);padding:24px;border:1px solid var(--kb-line);transition:all .25s;cursor:pointer;position:relative;overflow:hidden;}
+  .svc:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--kb-yellow);}
+  .svc .num{position:absolute;top:14px;right:18px;font-size:38px;font-weight:900;color:var(--kb-soft);}
+  .svc h3{font-size:17px;font-weight:900;margin:8px 0 10px;color:var(--kb-dark-2);}
+  .svc p{font-size:13px;color:#6b6354;line-height:1.6;margin:0 0 14px;}
+  .svc .pts{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--kb-dark);font-weight:600;}
+  .svc .pts span::before{content:"✓ ";color:#22c55e;font-weight:900;}
+
+  /* Booking */
+  .booking{background:linear-gradient(180deg,var(--kb-soft),var(--kb-bg));}
+  .booking-wrap{display:grid;grid-template-columns:1.2fr 1fr;gap:28px;background:#fff;border-radius:24px;overflow:hidden;box-shadow:var(--shadow-strong);}
+  .booking-left{padding:32px;}
+  .booking-right{background:linear-gradient(160deg,var(--kb-dark),#4a4338);color:#fff;padding:32px;}
+  .step{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+  .step-num{width:28px;height:28px;border-radius:50%;background:var(--kb-yellow);color:var(--kb-dark);display:grid;place-items:center;font-weight:900;font-size:14px;}
+  .step-title{font-weight:900;font-size:16px;color:var(--kb-dark-2);}
+
+  /* Calendar */
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .cal-head .ym{font-size:18px;font-weight:900;color:var(--kb-dark-2);}
+  .cal-nav{display:flex;gap:8px;}
+  .cal-nav button{width:36px;height:36px;border-radius:10px;background:var(--kb-bg);font-weight:900;color:var(--kb-dark);transition:all .15s;}
+  .cal-nav button:hover:not(:disabled){background:var(--kb-yellow);}
+  .cal-nav button:disabled{opacity:.35;cursor:not-allowed;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+  .cal-dow{text-align:center;font-size:12px;font-weight:800;color:var(--kb-gray);padding:6px 0;}
+  .cal-dow.sun{color:#e94f4f;}
+  .cal-dow.sat{color:#3b82f6;}
+  .cal-day{aspect-ratio:1/1;border-radius:12px;display:grid;place-items:center;font-weight:700;font-size:14px;color:var(--kb-dark-2);background:#fff;border:1px solid var(--kb-line);transition:all .15s;cursor:pointer;position:relative;}
+  .cal-day:hover:not(.disabled):not(.empty){background:var(--kb-soft);border-color:var(--kb-yellow);}
+  .cal-day.empty{background:transparent;border:none;cursor:default;}
+  .cal-day.disabled{color:#cfc8b8;cursor:not-allowed;background:#fafafa;}
+  .cal-day.today{box-shadow:0 0 0 2px var(--kb-yellow) inset;}
+  .cal-day.selected{background:var(--kb-yellow);border-color:var(--kb-yellow);color:var(--kb-dark);font-weight:900;}
+  .cal-day.sun:not(.disabled){color:#e94f4f;}
+  .cal-day.sat:not(.disabled){color:#3b82f6;}
+  .cal-day .mark{position:absolute;bottom:4px;width:4px;height:4px;border-radius:50%;background:#22c55e;}
+
+  /* Time slots */
+  .time-section{margin-top:24px;}
+  .time-label{font-size:13px;font-weight:800;color:var(--kb-dark);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+  .time-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+  .time-btn{padding:11px 8px;border-radius:10px;background:#fff;border:1px solid var(--kb-line);font-size:13px;font-weight:700;color:var(--kb-dark-2);transition:all .15s;}
+  .time-btn:hover:not(:disabled){border-color:var(--kb-yellow);background:var(--kb-soft);}
+  .time-btn.selected{background:var(--kb-yellow);border-color:var(--kb-yellow);color:var(--kb-dark);}
+  .time-btn:disabled{background:#fafafa;color:#cfc8b8;cursor:not-allowed;text-decoration:line-through;}
+  .time-empty{padding:24px;text-align:center;background:var(--kb-bg);border-radius:12px;color:var(--kb-gray);font-size:13px;}
+
+  /* Form (right side) */
+  .booking-right h3{font-size:20px;font-weight:900;margin:0 0 6px;}
+  .booking-right .sub{font-size:13px;color:#d8d2c4;margin:0 0 22px;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:12px;font-weight:700;color:#d8d2c4;margin-bottom:6px;}
+  .field input,.field select,.field textarea{width:100%;padding:12px 14px;border-radius:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:14px;font-family:inherit;transition:all .15s;}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--kb-yellow);background:rgba(255,255,255,.14);}
+  .field input::placeholder,.field textarea::placeholder{color:#a89f8c;}
+  .field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23ffbc00' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;}
+  .field select option{background:var(--kb-dark);}
+  .field textarea{resize:vertical;min-height:70px;}
+  .agree{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#d8d2c4;margin-bottom:18px;line-height:1.5;}
+  .agree input{margin-top:2px;accent-color:var(--kb-yellow);}
+  .submit-btn{width:100%;background:var(--kb-yellow);color:var(--kb-dark);padding:16px;border-radius:12px;font-weight:900;font-size:16px;transition:all .2s;box-shadow:0 6px 18px rgba(255,188,0,.35);}
+  .submit-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 24px rgba(255,188,0,.5);}
+  .submit-btn:disabled{opacity:.55;cursor:not-allowed;transform:none;}
+  .summary{background:rgba(255,188,0,.12);border:1px dashed rgba(255,188,0,.45);border-radius:12px;padding:14px;font-size:13px;color:#fff5d8;margin-bottom:16px;line-height:1.7;}
+  .summary .k{color:#ffd76b;font-weight:800;margin-right:6px;}
+  .summary.empty{color:#a89f8c;font-style:italic;border-style:dotted;}
+
+  /* FAQ */
+  .faq{background:#fff;}
+  .faq-list{max-width:780px;margin:0 auto;}
+  .faq-item{border-bottom:1px solid var(--kb-line);padding:18px 0;}
+  .faq-q{display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-weight:800;font-size:16px;color:var(--kb-dark-2);}
+  .faq-q::before{content:"Q.";color:var(--kb-yellow);margin-right:10px;font-weight:900;}
+  .faq-toggle{font-size:20px;color:var(--kb-gray);transition:transform .2s;}
+  .faq-item.open .faq-toggle{transform:rotate(45deg);}
+  .faq-a{max-height:0;overflow:hidden;transition:max-height .25s ease,padding .25s ease;color:#6b6354;font-size:14px;line-height:1.7;}
+  .faq-item.open .faq-a{max-height:300px;padding:14px 0 4px 26px;}
+
+  /* Footer */
+  footer{background:var(--kb-dark);color:#cfc8b8;padding:40px 24px 28px;text-align:center;font-size:13px;}
+  footer .ft-logo{font-weight:900;color:var(--kb-yellow);font-size:16px;margin-bottom:8px;}
+  footer .ft-info{line-height:1.7;}
+  footer a{color:var(--kb-yellow);}
+
+  /* Toast / Modal */
+  .toast{position:fixed;left:50%;bottom:36px;transform:translateX(-50%) translateY(20px);background:var(--kb-dark);color:#fff;padding:14px 22px;border-radius:12px;font-weight:700;font-size:14px;box-shadow:var(--shadow-strong);opacity:0;pointer-events:none;transition:all .3s;z-index:1000;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast.err{background:#c0392b;}
+
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:999;padding:20px;}
+  .modal.show{display:flex;}
+  .modal-card{background:#fff;border-radius:20px;padding:36px 30px;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow-strong);animation:pop .25s ease;}
+  @keyframes pop{from{transform:scale(.9);opacity:0;}to{transform:scale(1);opacity:1;}}
+  .modal-ico{width:72px;height:72px;border-radius:50%;background:var(--kb-yellow);display:grid;place-items:center;margin:0 auto 18px;font-size:36px;}
+  .modal h3{font-size:22px;font-weight:900;margin:0 0 10px;color:var(--kb-dark-2);}
+  .modal p{color:#6b6354;font-size:14px;line-height:1.7;margin:0 0 22px;}
+  .modal-info{background:var(--kb-soft);border-radius:12px;padding:14px;text-align:left;font-size:13px;color:var(--kb-dark-2);line-height:1.8;margin-bottom:20px;}
+  .modal-info b{color:var(--kb-dark);}
+  .modal button{background:var(--kb-dark);color:#fff;padding:12px 28px;border-radius:10px;font-weight:800;}
+
+  /* Sticky CTA mobile */
+  .mob-cta{display:none;}
+
+  /* Loader */
+  .loader{display:inline-block;width:14px;height:14px;border:2px solid rgba(96,88,76,.3);border-top-color:var(--kb-dark);border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:6px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* ============ 태블릿 / 중간 화면 ============ */
+  @media (max-width:920px){
+    .hero-inner{grid-template-columns:1fr;gap:32px;}
+    h1{font-size:34px;}
+    .services-grid{grid-template-columns:repeat(2,1fr);}
+    .booking-wrap{grid-template-columns:1fr;border-radius:18px;}
+    .booking-left{padding:24px;}
+    .booking-right{order:2;padding:24px;}
+    .nav .cta{display:none;}
+    section{padding:50px 18px;}
+    .mob-cta{display:block;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--kb-line);padding:10px 14px calc(10px + env(safe-area-inset-bottom)) 14px;z-index:90;box-shadow:0 -4px 16px rgba(0,0,0,.08);}
+    .mob-cta button{width:100%;background:var(--kb-yellow);color:var(--kb-dark);padding:15px;border-radius:12px;font-weight:900;font-size:15px;min-height:48px;}
+    body{padding-bottom:calc(76px + env(safe-area-inset-bottom));}
+    header{padding-top:env(safe-area-inset-top);}
+  }
+
+  /* ============ 모바일 최적화 (≤640px) ============ */
+  @media (max-width:640px){
+    /* 글자 크기 및 간격 재조정 */
+    h1{font-size:28px;line-height:1.22;letter-spacing:-.8px;}
+    .lead{font-size:15px;line-height:1.65;}
+    .section-title h2{font-size:24px;letter-spacing:-.5px;}
+    .section-title p{font-size:13px;padding:0 8px;}
+    .section-title{margin-bottom:32px;}
+    section{padding:44px 16px;}
+
+    /* Hero */
+    .hero{padding:32px 16px 44px;}
+    .badge{font-size:12px;padding:7px 12px;}
+    .hero-cta{flex-direction:column;gap:10px;}
+    .hero-cta a{width:100%;text-align:center;}
+    .btn-primary,.btn-ghost{padding:15px 20px;font-size:15px;min-height:50px;display:flex;align-items:center;justify-content:center;}
+    .trust{gap:14px;margin-top:24px;}
+    .trust .item{font-size:12px;}
+
+    /* Header */
+    .nav{padding:12px 16px;}
+    .logo{font-size:15px;gap:8px;}
+    .logo-mark{width:30px;height:30px;font-size:12px;}
+
+    /* Profile card */
+    .profile{padding:22px;}
+    .avatar{width:68px;height:68px;font-size:26px;}
+    .profile-name{font-size:19px;}
+    .profile-role{font-size:12px;}
+    .profile-stats{gap:6px;padding-top:14px;margin-top:16px;}
+    .stat .n{font-size:18px;}
+    .stat .l{font-size:10px;}
+    .tag{font-size:11px;padding:5px 10px;}
+
+    /* Services - 1열 */
+    .services-grid{grid-template-columns:1fr;gap:12px;}
+    .svc{padding:20px;}
+    .svc h3{font-size:16px;}
+    .svc p{font-size:13px;}
+    .svc .num{font-size:32px;top:12px;right:14px;}
+
+    /* Booking section */
+    .booking-left{padding:20px 18px;}
+    .booking-right{padding:24px 18px;}
+    .step{margin-bottom:14px;gap:8px;}
+    .step-title{font-size:14px;}
+    .step-num{width:26px;height:26px;font-size:13px;flex-shrink:0;}
+
+    /* Calendar */
+    .cal-head .ym{font-size:16px;}
+    .cal-nav button{width:40px;height:40px;font-size:18px;}
+    .cal-grid{gap:4px;}
+    .cal-day{font-size:13px;border-radius:10px;}
+    .cal-dow{font-size:11px;padding:4px 0;}
+    .cal-day .mark{width:3px;height:3px;bottom:3px;}
+
+    /* Time slots - 3열 (터치 영역 확보) */
+    .time-grid{grid-template-columns:repeat(3,1fr);gap:6px;}
+    .time-btn{padding:14px 4px;font-size:14px;min-height:48px;border-radius:10px;}
+    .time-label{font-size:12px;margin-bottom:8px;}
+    .time-empty{padding:18px 12px;font-size:12px;}
+
+    /* Form fields - iOS 줌 방지 (16px+) */
+    .field{margin-bottom:14px;}
+    .field label{font-size:12px;}
+    .field input,.field select,.field textarea{font-size:16px;padding:13px 14px;min-height:48px;}
+    .field textarea{min-height:84px;}
+    .agree{font-size:12px;}
+    .agree input{width:18px;height:18px;flex-shrink:0;}
+    .submit-btn{padding:16px;font-size:15px;min-height:52px;}
+    .summary{font-size:12.5px;padding:12px;}
+
+    /* FAQ */
+    .faq-q{font-size:14px;}
+    .faq-a{font-size:13px;}
+    .faq-item{padding:14px 0;}
+
+    /* Footer */
+    footer{padding:32px 18px calc(28px + env(safe-area-inset-bottom)) 18px;font-size:12px;}
+    .ft-logo{font-size:14px;}
+
+    /* Modal mobile */
+    .modal{padding:16px;align-items:flex-end;}
+    .modal-card{max-width:100%;padding:28px 22px calc(28px + env(safe-area-inset-bottom)) 22px;border-radius:20px 20px 0 0;animation:slideUp .3s ease;}
+    .modal-ico{width:60px;height:60px;font-size:30px;}
+    .modal h3{font-size:19px;}
+    .modal p{font-size:13px;}
+    .modal-info{font-size:12.5px;padding:12px;line-height:1.7;}
+    .modal button{padding:14px 24px;font-size:15px;width:100%;min-height:50px;}
+
+    /* Toast mobile */
+    .toast{bottom:96px;font-size:13px;padding:12px 18px;max-width:90vw;text-align:center;line-height:1.5;}
+
+    /* Hero 프로필 배경 원 축소 */
+    .profile::before{width:120px;height:120px;top:-30px;right:-30px;}
+  }
+
+  @keyframes slideUp{from{transform:translateY(100%);opacity:.5;}to{transform:translateY(0);opacity:1;}}
+
+  /* ============ 소형 휴대폰 (≤380px) ============ */
+  @media (max-width:380px){
+    h1{font-size:25px;}
+    .section-title h2{font-size:22px;}
+    .time-grid{grid-template-columns:repeat(3,1fr);gap:5px;}
+    .time-btn{padding:12px 2px;font-size:13px;}
+    .cal-day{font-size:12px;}
+    .profile-tags{gap:5px;}
+    .tag{font-size:10px;padding:4px 8px;}
+    .trust{flex-direction:column;gap:8px;align-items:flex-start;}
+    .booking-left,.booking-right{padding:18px 14px;}
+  }
+
+  /* ============ 가로모드 대응 ============ */
+  @media (max-height:480px) and (orientation:landscape){
+    .hero{padding:24px 16px;}
+    h1{font-size:24px;}
+    .modal{align-items:center;}
+    .modal-card{border-radius:18px;max-height:90vh;overflow-y:auto;}
+  }
+
+  /* ============ 고해상도 디스플레이 ============ */
+  @media (-webkit-min-device-pixel-ratio:2){
+    .cal-day,.time-btn,.btn-primary{font-weight:700;}
+  }
+
+  /* ============ 접근성: 포커스 아웃라인 ============ */
+  button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
+    outline:2px solid var(--kb-yellow);outline-offset:2px;
+  }
+  /* ============ 접근성: 모션 축소 선호 ============ */
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;}
+    html{scroll-behavior:auto;}
+  }
+</style>
 </head>
 <body>
-  <div class="header">
-    <div class="title">스타웰스매니저 안석훈</div>
-    <div>1:1 맞춤 자산관리 상담</div>
+
+<header>
+  <div class="nav">
+    <div class="logo">
+      <div class="logo-mark">KB</div>
+      <span>Star Wealth Manager</span>
+    </div>
+    <a href="#booking" class="cta">📅 상담 예약하기</a>
   </div>
+</header>
 
-  <div class="content">
-    <h2>📅 예약 날짜 선택</h2>
-    <div id="calendar"></div>
-    <div id="slots"></div>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <div>
+      <span class="badge"><span class="dot"></span>지금 이번 주 예약 가능</span>
+      <h1>당신의 자산,<br/><span class="hl">평생 동반자</span>가<br/>지켜드립니다.</h1>
+      <p class="lead">
+        KB금융 <b>스타웰스매니저 안석훈</b>이 직접 1:1로 상담해 드립니다.<br/>
+        20년 노하우로 설계하는 <b>나만의 자산 로드맵</b>, 지금 만나보세요.
+      </p>
+      <div class="hero-cta">
+        <a href="#booking" class="btn-primary">🎯 지금 바로 상담 예약하기</a>
+        <a href="#services" class="btn-ghost">상담 분야 보기 →</a>
+      </div>
+      <div class="trust">
+        <div class="item"><span>⭐</span> 누적 상담 5,000건+</div>
+        <div class="item"><span>🏆</span> KB Star Wealth Manager</div>
+        <div class="item"><span>🔒</span> 전문상담 · 비밀유지</div>
+      </div>
+    </div>
+
+    <div class="profile">
+      <div class="profile-top">
+        <div class="avatar">안</div>
+        <div>
+          <div class="profile-name">안석훈 매니저</div>
+          <div class="profile-role">KB금융 Star Wealth Manager</div>
+          <div class="stars">★★★★★ <span>4.98 / 1,240+ 후기</span></div>
+        </div>
+      </div>
+      <div class="profile-tags">
+        <span class="tag">자산관리</span>
+        <span class="tag">투자 포트폴리오</span>
+        <span class="tag">은퇴설계</span>
+        <span class="tag">보장분석</span>
+      </div>
+      <div class="profile-stats">
+        <div class="stat"><div class="n">20년+</div><div class="l">상담 경력</div></div>
+        <div class="stat"><div class="n">5,000+</div><div class="l">누적 상담</div></div>
+        <div class="stat"><div class="n">98%</div><div class="l">재상담률</div></div>
+      </div>
+    </div>
   </div>
+</section>
 
-  <script>
-    let year = 2026;
-    let month = 5;
+<!-- SERVICES -->
+<section id="services">
+  <div class="container">
+    <div class="section-title">
+      <div class="eyebrow">Consulting Service</div>
+      <h2>이런 고민, 함께 풀어드립니다</h2>
+      <p>아래 4가지 분야에서 깊이 있는 1:1 상담을 진행합니다.</p>
+    </div>
+    <div class="services-grid">
+      <div class="svc">
+        <div class="num">01</div>
+        <h3>자산관리 종합상담</h3>
+        <p>현재 자산을 진단하고, 목표 기반의 종합 자산 로드맵을 설계해 드립니다.</p>
+        <div class="pts">
+          <span>자산 현황 진단</span>
+          <span>중·장기 목표 설계</span>
+          <span>현금흐름 최적화</span>
+        </div>
+      </div>
+      <div class="svc">
+        <div class="num">02</div>
+        <h3>투자 포트폴리오 상담</h3>
+        <p>리스크 성향에 맞는 분산투자 전략과 KB 추천 상품을 안내드립니다.</p>
+        <div class="pts">
+          <span>리스크 성향 분석</span>
+          <span>분산투자 전략</span>
+          <span>리밸런싱 가이드</span>
+        </div>
+      </div>
+      <div class="svc">
+        <div class="num">03</div>
+        <h3>은퇴설계 상담</h3>
+        <p>국민연금·퇴직연금·개인연금을 통합해 안정적 노후 현금흐름을 만들어드립니다.</p>
+        <div class="pts">
+          <span>3중 연금 통합 진단</span>
+          <span>예상 노후 소득 계산</span>
+          <span>세제혜택 활용 전략</span>
+        </div>
+      </div>
+      <div class="svc">
+        <div class="num">04</div>
+        <h3>보장분석 및 리뷰</h3>
+        <p>가입하신 보험을 분석해 중복·부족·과잉 보장을 객관적으로 진단해 드립니다.</p>
+        <div class="pts">
+          <span>전체 증권 통합 분석</span>
+          <span>보장 공백 진단</span>
+          <span>리모델링 가이드</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-    function renderCalendar() {
-      let html = `<p style="text-align:center; font-size:18px;">${year}년 ${month}월</p>`;
-      html += `<div class="date-grid">`;
-      for (let d = 1; d <= 31; d++) {
-        const date = new Date(year, month-1, d);
-        if (date.getMonth() !== month-1) break;
-        if (date.getDay() === 0) continue;
+<!-- BOOKING -->
+<section class="booking" id="booking">
+  <div class="container">
+    <div class="section-title">
+      <div class="eyebrow">Booking</div>
+      <h2>📅 1:1 상담 예약하기</h2>
+      <p>원하시는 날짜와 시간을 선택해주세요. 상담은 고객님 내방 또는 고객님 계시는 곳으로 직접 방문하여 안내해드립니다.</p>
+    </div>
 
-        html += `<button class="date-btn" onclick="loadSlots(${year},${month},${d})">${d}일</button>`;
-      }
-      html += `</div>`;
-      document.getElementById('calendar').innerHTML = html;
+    <div class="booking-wrap">
+      <!-- LEFT: Calendar -->
+      <div class="booking-left">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-title">상담 받으실 날짜를 선택하세요</div>
+        </div>
+        <div class="cal-head">
+          <div class="ym" id="calYm">2026년 5월</div>
+          <div class="cal-nav">
+            <button id="prevMonth" aria-label="이전 달">‹</button>
+            <button id="nextMonth" aria-label="다음 달">›</button>
+          </div>
+        </div>
+        <div class="cal-grid" id="calDow">
+          <div class="cal-dow sun">일</div>
+          <div class="cal-dow">월</div>
+          <div class="cal-dow">화</div>
+          <div class="cal-dow">수</div>
+          <div class="cal-dow">목</div>
+          <div class="cal-dow">금</div>
+          <div class="cal-dow sat">토</div>
+        </div>
+        <div class="cal-grid" id="calDays" style="margin-top:6px;"></div>
+
+        <div class="time-section">
+          <div class="step" style="margin-top:30px;">
+            <div class="step-num">2</div>
+            <div class="step-title">상담 시간을 선택하세요 <span style="font-weight:500;font-size:12px;color:var(--kb-gray);margin-left:6px;">(상담 1시간 · 앞뒤 1시간 자동 보호)</span></div>
+          </div>
+          <div class="time-label">🌅 오전</div>
+          <div class="time-grid" id="timeMorning"></div>
+          <div class="time-label" style="margin-top:14px;">☀️ 오후</div>
+          <div class="time-grid" id="timeAfternoon"></div>
+          <div class="time-label" style="margin-top:14px;">🌆 저녁</div>
+          <div class="time-grid" id="timeEvening"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Form -->
+      <div class="booking-right">
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-title" style="color:#fff;">정보를 입력해주세요</div>
+        </div>
+        <h3 style="margin-top:14px;">상담 신청 정보</h3>
+        <p class="sub">입력하신 정보는 상담 예약 용도로만 사용됩니다.</p>
+
+        <div id="summaryBox" class="summary empty">날짜와 시간을 먼저 선택해주세요</div>
+
+        <form id="bookingForm" autocomplete="off">
+          <div class="field">
+            <label>이름 *</label>
+            <input type="text" id="name" placeholder="홍길동" required maxlength="20"/>
+          </div>
+          <div class="field">
+            <label>연락처 *</label>
+            <input type="tel" id="phone" placeholder="010-1234-5678" required maxlength="13"/>
+          </div>
+          <div class="field">
+            <label>이메일 (선택)</label>
+            <input type="email" id="email" placeholder="example@email.com" maxlength="50"/>
+          </div>
+          <div class="field">
+            <label>상담 분야 *</label>
+            <select id="topic" required>
+              <option value="">상담 분야를 선택해주세요</option>
+              <option>자산관리 종합상담</option>
+              <option>투자 포트폴리오 상담</option>
+              <option>은퇴설계 상담</option>
+              <option>보장분석 및 리뷰</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>상담 요청 메시지 (선택)</label>
+            <textarea id="memo" placeholder="궁금하신 내용을 미리 적어주세요." maxlength="500"></textarea>
+          </div>
+          <label class="agree">
+            <input type="checkbox" id="agree" required/>
+            <span>개인정보 수집·이용에 동의합니다. (상담 예약 목적, 보유기간 1년)</span>
+          </label>
+          <button type="submit" class="submit-btn" id="submitBtn">✨ 상담 예약 확정하기</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq">
+  <div class="container">
+    <div class="section-title">
+      <div class="eyebrow">FAQ</div>
+      <h2>자주 묻는 질문</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q">상담 시간은 얼마나 걸리나요? <span class="faq-toggle">+</span></div>
+        <div class="faq-a">상담은 약 1시간 진행됩니다. 깊이 있는 분석을 위해 앞뒤로 1시간씩 여유 시간을 두고 운영합니다.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">상담 장소는 어디인가요? <span class="faq-toggle">+</span></div>
+        <div class="faq-a">고객님께서 직접 내방하시거나, 고객님이 계시는 곳으로 방문하여 상담을 안내해드립니다. 예약 확정 후 상세 장소를 조율해드립니다.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">예약 변경·취소는 어떻게 하나요? <span class="faq-toggle">+</span></div>
+        <div class="faq-a">예약 후 받으시는 안내 문자 또는 매니저 직통(010-2213-3907)으로 연락 주시면 즉시 처리해 드립니다.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">상담 시 무엇을 준비해야 하나요? <span class="faq-toggle">+</span></div>
+        <div class="faq-a">특별한 준비는 필요 없습니다. 다만, 기존 보유 상품 자료(보험증권·예적금 등)를 가져오시면 더 정확한 분석이 가능합니다.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="ft-logo">KB금융 Star Wealth Manager 안석훈</div>
+  <div class="ft-info">
+    📞 010-2213-3907 &nbsp;|&nbsp; ✉️ <a href="/cdn-cgi/l/email-protection#2d4c41414f4c5f426d434c5b485f034e4240"><span class="__cf_email__" data-cfemail="385954545a594a577856594e5d4a165b5755">[email&#160;protected]</span></a><br/>
+    © 2026 KB Star Wealth Manager. All rights reserved.<br/>
+    <span style="font-size:11px;color:#9c9485;">본 페이지는 안석훈 매니저 개인 상담예약 페이지로, KB금융지주의 공식 페이지가 아닙니다.</span>
+  </div>
+</footer>
+
+<!-- Mobile sticky CTA -->
+<div class="mob-cta"><a href="#booking"><button>📅 상담 예약하기</button></a></div>
+
+<!-- Toast & Modal -->
+<div class="toast" id="toast"></div>
+
+<div class="modal" id="modal">
+  <div class="modal-card">
+    <div class="modal-ico">✓</div>
+    <h3>예약이 접수되었습니다!</h3>
+    <p>안석훈 매니저가 곧 확정 안내를 드릴 예정입니다.<br/>예약 정보를 확인해주세요.</p>
+    <div class="modal-info" id="modalInfo"></div>
+    <button id="modalClose">확인</button>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+/* ============================================================
+   ⚙️ 설정 (Configuration)
+   GitHub Pages에 배포 후, 아래 WEB_APP_URL만 본인 Apps Script
+   배포 URL(.../exec)로 교체하면 됩니다.
+   ============================================================ */
+const CONFIG = {
+  // Apps Script Web App 배포 후 받게 되는 .../exec URL을 여기에 붙여넣으세요.
+  // (Script ID: 1N3n4BpmQY_TrRkRfVcW_jrNKlzQWKHqIBC-DEAKp-BynTd1mlX1l1g0V)
+  WEB_APP_URL: "https://script.google.com/macros/s/AKfycbxTNAIE_sqxofKp9wTSaPuVkHbJAPy3Yu5zDoOEtr26a8El2kUGt69ezKYiAxeiFy1L/exec",
+  MANAGER_NAME: "안석훈",
+  MANAGER_PHONE: "010-2213-3907",
+  MANAGER_EMAIL: "allbaro@naver.com",
+  // 참고용 표시값: 실제 연동은 Apps Script의 primary 캘린더 기준으로 동작
+  CALENDAR_OWNER: "primary",
+  // 상담 운영 정책
+  // 실제 예약 가능/불가 판단은 Apps Script가 primary 캘린더의 기존 일정까지 포함해 계산
+  OPEN_HOUR: 9,        // 09:00 시작
+  CLOSE_HOUR: 20,      // 마지막 상담 종료시각 20:00 (마지막 상담 시작 19:00)
+  DURATION_HOUR: 1,    // 상담 1시간
+  BUFFER_HOUR: 1,      // 앞뒤 버퍼 1시간 → 가능 시작시각 간격 2시간
+  ADVANCE_DAYS: 1,     // 최소 D+1부터 예약 가능
+  MAX_AHEAD_DAYS: 60,  // 최대 60일 이후까지 예약
+  WORK_DAYS: [1,2,3,4,5,6] // 월~토 (0=일, 6=토)
+};
+
+/* ============================================================
+   상태
+   ============================================================ */
+const state = {
+  view: new Date(),       // 캘린더 표시 중인 월
+  selectedDate: null,     // YYYY-MM-DD
+  selectedTime: null,     // "HH:00"
+  bookedSlots: {}         // {"YYYY-MM-DD": ["09:00", "10:00", "11:00"]}  ← 백엔드가 이미 차단 슬롯 전체를 내려줌
+};
+
+/* ============================================================
+   유틸
+   ============================================================ */
+const $ = (s) => document.querySelector(s);
+const pad = (n) => String(n).padStart(2, "0");
+const fmtDate = (d) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const fmtKo = (d) => `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 (${"일월화수목금토"[d.getDay()]})`;
+
+function showToast(msg, isErr=false){
+  const t = $("#toast");
+  t.textContent = msg;
+  t.classList.toggle("err", !!isErr);
+  t.classList.add("show");
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>t.classList.remove("show"), 2800);
+}
+
+/* ============================================================
+   가능 시작시각 계산 (상담시간 기준 매시 정각)
+   - 운영시간: 09:00 ~ 20:00 (마지막 상담 시작 19:00, 종료 20:00)
+   - 모든 정각(09, 10, 11, ..., 19) 슬롯 표시
+   - 단, 예약이 잡히면 앞뒤 BUFFER_HOUR(1h) 슬롯도 자동 차단
+     예) 10시 상담 확정 → 09·10·11시 차단 → 다음 가능: 12시
+   ============================================================ */
+function generateBaseSlots(){
+  const slots = [];
+  for(let h = CONFIG.OPEN_HOUR; h + CONFIG.DURATION_HOUR <= CONFIG.CLOSE_HOUR; h += CONFIG.DURATION_HOUR){
+    slots.push(pad(h)+":00");
+  }
+  return slots;
+}
+const BASE_SLOTS = generateBaseSlots(); // ["09:00","10:00","11:00",...,"19:00"]
+
+// 백엔드(Apps Script)가 기존 일정 + 예약 이벤트 + 버퍼까지 반영한
+// "실제 차단 슬롯" 목록을 내려주므로, 프런트에서는 그대로 Set으로 사용한다.
+function toBlockedSet(blockedTimes){
+  return new Set(blockedTimes || []);
+}
+
+function bucketSlot(t){
+  const h = parseInt(t.split(":")[0],10);
+  if(h < 12) return "morning";
+  if(h < 17) return "afternoon";
+  return "evening";
+}
+
+/* ============================================================
+   캘린더 렌더
+   ============================================================ */
+function renderCalendar(){
+  const y = state.view.getFullYear();
+  const m = state.view.getMonth();
+  $("#calYm").textContent = `${y}년 ${m+1}월`;
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const minDate = new Date(today); minDate.setDate(minDate.getDate()+CONFIG.ADVANCE_DAYS);
+  const maxDate = new Date(today); maxDate.setDate(maxDate.getDate()+CONFIG.MAX_AHEAD_DAYS);
+
+  // prev/next 비활성화
+  const firstDayOfView = new Date(y, m, 1);
+  const lastDayOfView = new Date(y, m+1, 0);
+  $("#prevMonth").disabled = firstDayOfView <= new Date(today.getFullYear(), today.getMonth(), 1);
+  $("#nextMonth").disabled = lastDayOfView >= new Date(maxDate.getFullYear(), maxDate.getMonth()+1, 0);
+
+  const firstWeekday = firstDayOfView.getDay();
+  const daysInMonth = lastDayOfView.getDate();
+
+  const grid = $("#calDays");
+  grid.innerHTML = "";
+
+  // 앞쪽 공백
+  for(let i=0;i<firstWeekday;i++){
+    const e = document.createElement("div");
+    e.className = "cal-day empty";
+    grid.appendChild(e);
+  }
+
+  for(let d=1; d<=daysInMonth; d++){
+    const dateObj = new Date(y, m, d);
+    const dow = dateObj.getDay();
+    const dateStr = fmtDate(dateObj);
+
+    const el = document.createElement("div");
+    el.className = "cal-day";
+    el.textContent = d;
+
+    if(dow === 0) el.classList.add("sun");
+    if(dow === 6) el.classList.add("sat");
+    if(fmtDate(today) === dateStr) el.classList.add("today");
+
+    let disabled = false;
+    if(dateObj < minDate || dateObj > maxDate) disabled = true;
+    if(!CONFIG.WORK_DAYS.includes(dow)) disabled = true;
+
+    if(disabled) el.classList.add("disabled");
+    else {
+      el.addEventListener("click", ()=> selectDate(dateStr));
+      // 가능 표시 점
+      const mark = document.createElement("div");
+      mark.className = "mark";
+      el.appendChild(mark);
     }
 
-    function loadSlots(y, m, d) {
-      google.script.run
-        .withSuccessHandler(slots => {
-          let html = `<h3>${m}월 ${d}일 가능한 시간</h3>`;
-          if (slots.length === 0) {
-            html += `<p style="color:red; padding:20px;">해당일은 예약이 마감되었습니다.</p>`;
-          } else {
-            slots.forEach(s => {
-              html += `<div class="slot" onclick="book('${y}-${m.toString().padStart(2,0)}-${d.toString().padStart(2,0)}', '${s.time}')">
-                         <span>${s.time} ~ ${parseInt(s.time)+1}:00</span>
-                         <span class="available">예약가능</span>
-                       </div>`;
-            });
-          }
-          document.getElementById('slots').innerHTML = html;
-        })
-        .getAvailableSlots(y, m, d);
+    if(state.selectedDate === dateStr) el.classList.add("selected");
+    grid.appendChild(el);
+  }
+
+  renderTimes();
+  updateSummary();
+}
+
+function selectDate(dateStr){
+  state.selectedDate = dateStr;
+  state.selectedTime = null;
+  renderCalendar();
+}
+
+/* ============================================================
+   시간 슬롯 렌더
+   ============================================================ */
+function renderTimes(){
+  const containers = {
+    morning: $("#timeMorning"),
+    afternoon: $("#timeAfternoon"),
+    evening: $("#timeEvening")
+  };
+  Object.values(containers).forEach(c => c.innerHTML = "");
+
+  if(!state.selectedDate){
+    containers.morning.innerHTML = '<div class="time-empty" style="grid-column:1/-1;">👈 먼저 날짜를 선택해주세요</div>';
+    return;
+  }
+
+  const booked = state.bookedSlots[state.selectedDate] || [];
+  const blocked = toBlockedSet(booked); // 백엔드가 계산한 최종 차단 시각 그대로 사용
+  // 오늘에 가까운 날짜는 현재시각 이후만
+  const now = new Date();
+  const selDateObj = new Date(state.selectedDate + "T00:00:00");
+  const isToday = fmtDate(now) === state.selectedDate;
+
+  BASE_SLOTS.forEach(t => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "time-btn";
+    btn.textContent = t;
+
+    const isBooked = blocked.has(t);
+    const hour = parseInt(t.split(":")[0],10);
+    const slotDateTime = new Date(selDateObj);
+    slotDateTime.setHours(hour, 0, 0, 0);
+    const tooSoon = isToday && (slotDateTime.getTime() - now.getTime() < 2*60*60*1000);
+
+    if(isBooked || tooSoon){
+      btn.disabled = true;
+      btn.title = isBooked ? "이미 예약된 시간입니다" : "예약 가능 시간이 지났습니다";
+    } else {
+      btn.addEventListener("click", ()=>{
+        state.selectedTime = t;
+        renderTimes();
+        updateSummary();
+      });
     }
+    if(state.selectedTime === t) btn.classList.add("selected");
 
-    function book(dateStr, timeStr) {
-      const name = prompt("성함을 입력해주세요");
-      const phone = prompt("연락처", "010-2213-3907");
-      if (!name || !phone) return alert("성함과 연락처는 필수입니다.");
+    containers[bucketSlot(t)].appendChild(btn);
+  });
 
-      const memo = prompt("상담 희망사항 (선택)", "");
-
-      google.script.run
-        .withSuccessHandler(r => {
-          if (r.success) {
-            alert(`🎉 ${r.message} 예약이 완료되었습니다!\nGoogle Calendar에 등록되었습니다.`);
-          } else {
-            alert("오류 발생: " + r.message);
-          }
-        })
-        .bookAppointment(dateStr, timeStr, name, phone, memo);
+  // 빈 버킷 처리
+  ["morning","afternoon","evening"].forEach(k=>{
+    if(!containers[k].children.length){
+      containers[k].innerHTML = '<div class="time-empty" style="grid-column:1/-1;">해당 시간대 가능 슬롯 없음</div>';
     }
+  });
+}
 
-    window.onload = renderCalendar;
-  </script>
+/* ============================================================
+   요약 박스 업데이트
+   ============================================================ */
+function updateSummary(){
+  const box = $("#summaryBox");
+  if(state.selectedDate && state.selectedTime){
+    const d = new Date(state.selectedDate + "T00:00:00");
+    const [h] = state.selectedTime.split(":").map(Number);
+    const endH = h + CONFIG.DURATION_HOUR;
+    box.classList.remove("empty");
+    box.innerHTML = `
+      <div><span class="k">📅 일시</span>${fmtKo(d)}</div>
+      <div><span class="k">⏰ 시간</span>${pad(h)}:00 ~ ${pad(endH)}:00 (1시간)</div>
+      <div><span class="k">📍 장소</span>고객 내방 또는 고객 계시는 곳 방문 안내</div>
+      <div><span class="k">👤 담당</span>${CONFIG.MANAGER_NAME} 매니저</div>
+    `;
+  } else {
+    box.classList.add("empty");
+    box.textContent = "날짜와 시간을 먼저 선택해주세요";
+  }
+}
+
+/* ============================================================
+   예약된 슬롯 불러오기 (Apps Script GET)
+   ============================================================ */
+async function loadBookedSlots(){
+  try{
+    const url = `${CONFIG.WEB_APP_URL}?action=list&from=${fmtDate(new Date())}`;
+    const res = await fetch(url, { method:"GET" });
+    if(!res.ok) throw new Error("server "+res.status);
+    const data = await res.json();
+    if(data && data.success && data.slots){
+      state.bookedSlots = data.slots; // {"2026-05-13":["09:00","10:00","11:00"], ...}
+      renderTimes();
+    }
+  }catch(e){
+    // 오프라인/미배포 시에도 페이지는 정상 동작 (예약 가능 시간 모두 표시)
+    console.warn("예약 정보 불러오기 실패:", e.message);
+  }
+}
+
+/* ============================================================
+   전화번호 자동 포맷 010-xxxx-xxxx
+   ============================================================ */
+$("#phone").addEventListener("input", (e)=>{
+  let v = e.target.value.replace(/\D/g,"");
+  if(v.length > 11) v = v.slice(0,11);
+  if(v.length < 4) e.target.value = v;
+  else if(v.length < 8) e.target.value = v.slice(0,3)+"-"+v.slice(3);
+  else e.target.value = v.slice(0,3)+"-"+v.slice(3,7)+"-"+v.slice(7);
+});
+
+/* ============================================================
+   폼 검증
+   ============================================================ */
+function validateForm(){
+  if(!state.selectedDate || !state.selectedTime){
+    showToast("날짜와 시간을 먼저 선택해주세요", true);
+    document.querySelector("#booking").scrollIntoView({behavior:"smooth"});
+    return null;
+  }
+  const name = $("#name").value.trim();
+  const phone = $("#phone").value.trim();
+  const email = $("#email").value.trim();
+  const topic = $("#topic").value;
+  const memo = $("#memo").value.trim();
+  const agree = $("#agree").checked;
+
+  if(name.length < 2){ showToast("이름을 정확히 입력해주세요", true); return null; }
+  if(!/^010-\d{3,4}-\d{4}$/.test(phone)){ showToast("연락처 형식을 확인해주세요 (010-1234-5678)", true); return null; }
+  if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ showToast("이메일 형식을 확인해주세요", true); return null; }
+  if(!topic){ showToast("상담 분야를 선택해주세요", true); return null; }
+  if(!agree){ showToast("개인정보 수집에 동의해주세요", true); return null; }
+
+  return { name, phone, email, topic, memo, date: state.selectedDate, time: state.selectedTime };
+}
+
+/* ============================================================
+   제출
+   ============================================================ */
+$("#bookingForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const payload = validateForm();
+  if(!payload) return;
+
+  const btn = $("#submitBtn");
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loader"></span> 예약 처리 중...';
+
+  try{
+    // Apps Script Web App에 application/x-www-form-urlencoded 로 전송
+    // (CORS preflight 회피)
+    const body = new URLSearchParams({
+      action: "book",
+      payload: JSON.stringify(payload)
+    });
+    const res = await fetch(CONFIG.WEB_APP_URL, {
+      method: "POST",
+      body: body
+    });
+    let data;
+    try { data = await res.json(); } catch { data = { success:false, error:"서버 응답 형식 오류" }; }
+
+    if(!data.success) throw new Error(data.error || "예약 실패");
+
+    // 성공: 모달 표시 + 슬롯 갱신
+    const d = new Date(payload.date + "T00:00:00");
+    const [h] = payload.time.split(":").map(Number);
+    $("#modalInfo").innerHTML = `
+      <div><b>👤 이름</b> ${payload.name}</div>
+      <div><b>📅 일시</b> ${fmtKo(d)} ${payload.time} ~ ${pad(h+1)}:00</div>
+      <div><b>📋 분야</b> ${payload.topic}</div>
+      <div><b>📍 장소</b> 고객 내방 또는 고객 계시는 곳 방문 안내</div>
+      <div style="margin-top:8px;font-size:12px;color:#6b6354;">담당 매니저(${CONFIG.MANAGER_NAME}, ${CONFIG.MANAGER_PHONE})가 곧 연락드립니다.</div>
+    `;
+    $("#modal").classList.add("show");
+    $("#bookingForm").reset();
+    state.selectedTime = null;
+    await loadBookedSlots();
+  }catch(err){
+    showToast("예약 실패: " + err.message + " (매니저에게 직접 연락 부탁드립니다)", true);
+  }finally{
+    btn.disabled = false;
+    btn.innerHTML = orig;
+  }
+});
+
+$("#modalClose").addEventListener("click", ()=> $("#modal").classList.remove("show"));
+$("#modal").addEventListener("click", (e)=>{ if(e.target.id==="modal") $("#modal").classList.remove("show"); });
+
+/* ============================================================
+   네비게이션 / FAQ
+   ============================================================ */
+$("#prevMonth").addEventListener("click", ()=>{
+  if($("#prevMonth").disabled) return;
+  state.view.setMonth(state.view.getMonth()-1);
+  renderCalendar();
+});
+$("#nextMonth").addEventListener("click", ()=>{
+  if($("#nextMonth").disabled) return;
+  state.view.setMonth(state.view.getMonth()+1);
+  renderCalendar();
+});
+
+document.querySelectorAll(".faq-item").forEach(it=>{
+  it.querySelector(".faq-q").addEventListener("click", ()=>{
+    it.classList.toggle("open");
+  });
+});
+
+/* ============================================================
+   초기 실행
+   ============================================================ */
+renderCalendar();
+loadBookedSlots();
+</script>
+
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
