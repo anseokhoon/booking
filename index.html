@@ -12,7 +12,7 @@
 <meta name="description" content="KB금융 스타웰스매니저 안석훈과 함께하는 1:1 맞춤 자산관리 상담. 지금 예약하고 평생 자산 로드맵을 받아보세요." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://cdn.jsdelivr.net/gh/orioncactus/[email protected]/dist/web/static/pretendard.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -346,7 +346,6 @@
     <!-- Top Text / Headline -->
     <div class="hero-head">
       <span class="badge"><span class="dot"></span>지금 이번 주 예약 가능</span>
-      <!-- 1. 한 줄로 표시되도록 구조와 CSS 적용 -->
       <h1>당신의 자산, <span class="hl">평생 동반자</span>가 지켜드립니다.</h1>
       <p class="lead">
         KB금융 <b>스타웰스매니저 안석훈</b>이 직접 1:1로 상담해 드립니다.<br/>
@@ -359,7 +358,7 @@
       </div>
     </div>
 
-    <!-- 2. 예약 캘린더를 첫 화면에 배치 -->
+    <!-- 예약 캘린더 메인 영역 -->
     <div class="hero-content">
       
       <!-- Left side: Profile -->
@@ -450,7 +449,6 @@
               </div>
               <div class="field">
                 <label>상담 분야 *</label>
-                <!-- 3. 상속증여, 종자돈 플랜 옵션 추가 -->
                 <select id="topic" required>
                   <option value="">상담 분야를 선택해주세요</option>
                   <option>자산관리 종합상담</option>
@@ -488,7 +486,6 @@
       <p>원하시는 분야에서 깊이 있는 1:1 맞춤 상담을 진행합니다.</p>
     </div>
     
-    <!-- 3. 서비스 6개 항목으로 구성 (3x2 Grid) -->
     <div class="services-grid">
       <div class="svc" onclick="document.getElementById('topic').value='자산관리 종합상담'; window.location.href='#booking';">
         <div class="num">01</div>
@@ -530,8 +527,6 @@
           <span>리모델링 가이드</span>
         </div>
       </div>
-      
-      <!-- 새 항목 추가: 상속증여 -->
       <div class="svc" onclick="document.getElementById('topic').value='상속·증여 절세플랜'; window.location.href='#booking';">
         <div class="num">05</div>
         <h3>상속·증여 절세플랜</h3>
@@ -542,8 +537,6 @@
           <span>사전증여 플랜</span>
         </div>
       </div>
-
-      <!-- 새 항목 추가: 종자돈 플랜 -->
       <div class="svc" onclick="document.getElementById('topic').value='종잣돈 마련 플랜'; window.location.href='#booking';">
         <div class="num">06</div>
         <h3>종잣돈 마련 플랜</h3>
@@ -616,7 +609,6 @@
    ⚙️ 설정 (Configuration)
    ============================================================ */
 const CONFIG = {
-  // Apps Script Web App 배포 URL
   WEB_APP_URL: "https://script.google.com/macros/s/AKfycbxqg71kJY0XljwZom9TtB0R_1YFLSsidnvk7Y2sAFPbb0wPjKjiNwR1BpPFjiekC8BS/exec",
   MANAGER_NAME: "안석훈",
   MANAGER_PHONE: "010-2213-3907",
@@ -640,7 +632,7 @@ const state = {
   selectedTime: null,     // "HH:00"
   bookedSlots: {},        // {"YYYY-MM-DD": ["09:00", "10:00", "11:00"]}
   calendarSyncOk: false,  // 백엔드 연동 성공 여부
-  calendarSyncMsg: "20초후 화면이 연동됩니다" // 요청하신 기본 대기 메시지로 수정됨
+  calendarSyncMsg: "20초후 화면이 연동됩니다"
 };
 
 /* ============================================================
@@ -768,16 +760,13 @@ function renderTimes(){
   }
 
   if(!state.calendarSyncOk){
-    // 연동 실패 시의 에러메시지가 아닌, 로딩중 메시지라면 스켈레톤과 안내 문구 노출
     const isLoading = state.calendarSyncMsg === "20초후 화면이 연동됩니다" || (state.calendarSyncMsg && state.calendarSyncMsg.indexOf("확인 중") >= 0);
     
     if(isLoading){
       let skeleton = '';
       for(let i = 0; i < 4; i++) skeleton += '<div class="time-btn skeleton" style="animation:pulse 1.2s ease-in-out infinite;"></div>';
-      // 수정됨: 뼈대 UI 위에 로딩 메시지를 표시합니다.
       containers.morning.innerHTML = `<div class="time-empty" style="grid-column:1/-1; margin-bottom: 10px; font-weight: bold; color: var(--kb-dark);">${state.calendarSyncMsg}</div>` + skeleton;
     } else {
-      // 로딩 중이 아니라면 (에러 발생 등) 에러 메시지만 표시
       containers.morning.innerHTML = `<div class="time-empty" style="grid-column:1/-1;">⚠️ ${state.calendarSyncMsg}</div>`;
     }
     return;
@@ -968,17 +957,20 @@ $("#bookingForm").addEventListener("submit", async (e)=>{
       payload: JSON.stringify(payload)
     });
     
-    // 서버로 데이터는 전송하되, 에러가 오더라도 화면에 띄우지 않고 무시합니다.
+    // 백엔드로 비동기 데이터 전달 (에러 시 무시)
     await fetch(CONFIG.WEB_APP_URL, {
       method: "POST",
       body: body
     }).catch(err => console.log("서버 응답 무시:", err));
 
-    // 무조건 예약 확정 성공 UI를 띄워줍니다.
+    // 버튼 상태 즉시 복구 (로딩 멈춤 처리)
+    btn.disabled = false;
+    btn.innerHTML = orig;
+
+    // 즉시 예약 확정 성공 UI 출력
     const d = new Date(payload.date + "T00:00:00");
     const [h] = payload.time.split(":").map(Number);
     
-    // 팝업 창 제목을 강제로 '확정'으로 변경
     document.querySelector("#modal h3").textContent = "예약이 확정되었습니다!";
 
     $("#modalInfo").innerHTML = `
@@ -992,13 +984,11 @@ $("#bookingForm").addEventListener("submit", async (e)=>{
     $("#bookingForm").reset();
     state.selectedTime = null;
     
-    // 기존 스케줄 다시 불러오기 (이 과정에서의 서버 통신 에러도 조용히 무시)
-    await loadBookedSlots().catch(() => {});
+    // 백그라운드에서 예약 현황 갱신 (버튼 로딩 방해 안 함)
+    loadBookedSlots().catch(() => {});
     
   }catch(err){
-    // 스크립트 내부 자체 실행 오류가 발생할 때만 안내
     showToast("화면 처리 중 오류가 발생했습니다. 매니저에게 직접 연락 부탁드립니다.", true);
-  }finally{
     btn.disabled = false;
     btn.innerHTML = orig;
   }
