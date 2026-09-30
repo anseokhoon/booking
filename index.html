@@ -637,7 +637,7 @@ footer small{grid-column:1/-1;border-top:1px solid #2E2923;padding-top:20px;font
 <footer>
   <div class="wrap">
     <div><b>KB금융 Star Wealth Manager 안석훈</b></div>
-    <div class="contact"><a href="tel:01022133907">010-2213-3907</a> · <a href="/cdn-cgi/l/email-protection#d2b3bebeb0b3a0bd92bcb3a4b7a0fcb1bdbf"><span class="__cf_email__" data-cfemail="4a2b2626282b38250a242b3c2f3864292527">[email&#160;protected]</span></a></div>
+    <div class="contact"><a href="tel:01022133907">010-2213-3907</a> · <a href="/cdn-cgi/l/email-protection#21404d4d4340534e614f405744530f424e4c"><span class="__cf_email__" data-cfemail="442528282625362b042a253221366a272b29">[email&#160;protected]</span></a></div>
     <small>본 페이지는 안석훈 매니저 개인 상담예약 페이지로, KB금융지주의 공식 페이지가 아닙니다. 구체적인 금융상품 제안은 개별 상담과 적합성 확인 후 진행됩니다.<br/>© 2026 KB Star Wealth Manager. All rights reserved.</small>
   </div>
 </footer>
@@ -876,7 +876,7 @@ function renderQuick(){
 /* ============================================================
    데이터 조회 (stale-while-revalidate 캐시)
    ============================================================ */
-const CACHE_KEY="kb_booking_slots_v6", CACHE_TTL=7.5*60*1000;
+const CACHE_KEY="kb_booking_slots_v7", CACHE_TTL=7.5*60*1000;
 function readCache(){ try{ const o=JSON.parse(localStorage.getItem(CACHE_KEY)); return o && Date.now()-o.ts<CACHE_TTL ? o : null; }catch(e){ return null; } }
 function writeCache(slots){ try{ localStorage.setItem(CACHE_KEY,JSON.stringify({ts:Date.now(),slots})); }catch(e){} }
 
@@ -971,18 +971,14 @@ $("#bookingForm").addEventListener("submit", async e=>{
   const payload=validate(); if(!payload) return;
   const btn=$("#submitBtn"), orig=btn.innerHTML;
   state.submitting=true; btn.disabled=true;
+  const before=new Set(state.booked[payload.date]||[]);   // 보내기 전 예약 현황 기억
   btn.innerHTML='<span class="spin"></span>예약 신청 중…';
 
   const res=await postBook(payload);                 // 서버 응답을 그대로 받아 봅니다
 
   state.submitting=false; btn.disabled=false; btn.innerHTML=orig;
 
-  // 서버가 명확히 '실패'라고 답한 경우에만 실패로 안내합니다
-  if(res.data && res.data.success===false){
-    toast(res.data.error ? `예약이 처리되지 않았습니다: ${res.data.error}` : "예약이 처리되지 않았습니다. 다른 시간을 선택하거나 전화 주세요.",true);
-    loadBooked(true); return;
-  }
-  openModal(payload, res);
+  openModal(payload, res, before);
   $("#bookingForm").reset(); state.selectedTime=null;
   renderCalendar();
   loadBooked(true);
@@ -1007,7 +1003,8 @@ async function postBook(payload){
 /* ============================================================
    완료 모달 + 등록 검증 + 캘린더 추가
    ============================================================ */
-function openModal(p, res){
+function openModal(p, res, before){
+  state.lastRes=res;
   const data=(res&&res.data)||null, confirmed=!!(data&&data.success===true), kakaoSent=!!(data&&data.kakao===true);
   state.last=p;
   const d=parseDate(p.date), s0=toMin(p.time), s1=s0+CONFIG.DURATION_HOUR*60, ds8=p.date.replace(/-/g,"");
@@ -1019,31 +1016,46 @@ function openModal(p, res){
   g.searchParams.set("details",`상담 분야: ${p.topic}\n담당: ${CONFIG.MANAGER_NAME} 매니저 ${CONFIG.MANAGER_PHONE}`);
   if(kakaoSent) $("#mInfo").insertAdjacentHTML("beforeend",'<dt>알림</dt><dd>매니저 카톡으로 전송되었습니다</dd>');
   else if(data && data.kakao===false) $("#mInfo").insertAdjacentHTML("beforeend",'<dt>알림</dt><dd>카톡 전송이 지연되고 있습니다(예약은 정상)</dd>');
-  if(/[?&]debug=1/.test(location.search)){
-    $("#mInfo").insertAdjacentHTML("beforeend",
-      '<dt>진단</dt><dd style="font-weight:400;font-size:12px;color:#776E61">HTTP '+(res?res.status:"-")+' · '
-      + ((res&&res.data)?"JSON 응답":"응답 본문 파싱 실패") + '<br/><code style="word-break:break-all;font-size:11px">'
-      + esc(((res&&res.text)||"").slice(0,300)) + '</code></dd>');
-  }
+  $("#mInfo").insertAdjacentHTML("beforeend",
+    '<dt></dt><dd><button type="button" id="diagBtn" style="font-size:12px;text-decoration:underline;color:#776E61">서버 응답 보기</button>'
+    + '<div id="diagBox" hidden style="font-weight:400;font-size:12px;color:#776E61;margin-top:8px">HTTP '+(res?res.status:"-")+' · '
+    + ((res&&res.data)?"JSON 응답":"본문을 해석하지 못했습니다")+'<br/><code style="word-break:break-all;font-size:11px">'
+    + esc(((res&&res.text)||"(빈 응답)").slice(0,400))+'</code></div></dd>');
+  const _db=$("#diagBtn"); if(_db) _db.onclick=()=>{ const b=$("#diagBox"); b.hidden=!b.hidden; };
+  if(/[?&]debug=1/.test(location.search)){ const b=$("#diagBox"); if(b) b.hidden=false; }
   $("#gcal").href=g.toString();
   const v=$("#verify");
   if(confirmed){ v.className="verify ok"; v.innerHTML='<svg class="ico"><use href="#i-check"/></svg>캘린더에 예약이 등록되었습니다.'; }
-  else { v.className="verify"; v.innerHTML='<span class="spin"></span>캘린더 등록을 확인하고 있습니다…'; verifyBooked(p); }
+  else { v.className="verify"; v.innerHTML='<span class="spin"></span>캘린더 등록을 확인하고 있습니다…'; verifyBooked(p, before); }
   $("#modal").classList.add("show"); $("#modalClose").focus();
 }
-async function verifyBooked(p, retry){
+async function verifyBooked(p, before){
   const v=$("#verify");
-  v.className="verify"; v.innerHTML='<span class="spin"></span>캘린더 등록을 확인하고 있습니다…';
-  await new Promise(r=>setTimeout(r, retry?1500:3500));
-  try{
-    const s=await fetchSlots(10000); state.booked=s; writeCache(s); renderCalendar(); renderQuick();
-    if((s[p.date]||[]).includes(p.time)){ v.className="verify ok"; v.innerHTML='<svg class="ico"><use href="#i-check"/></svg>캘린더 등록까지 확인되었습니다.'; return; }
-  }catch(_){}
+  /* 서버가 정각 기준으로 저장하는 경우까지 감안해 ±30분을 같은 예약으로 봅니다 */
+  const near = t => Math.abs(toMin(t)-toMin(p.time)) <= 30;
+  const confirmed = (slots) => {
+    const list = slots[p.date] || [];
+    if(list.indexOf(p.time) >= 0) return true;
+    return list.some(t => near(t) && !(before && before.has(t)));
+  };
+  const waits=[2500,5000,9000];
+  for(let i=0;i<waits.length;i++){
+    v.className="verify";
+    v.innerHTML='<span class="spin"></span>캘린더 등록을 확인하고 있습니다… ('+(i+1)+'/'+waits.length+')';
+    await new Promise(r=>setTimeout(r, waits[i]));
+    try{
+      const s=await fetchSlots(20000); state.booked=s; writeCache(s); renderCalendar(); renderQuick();
+      if(confirmed(s)){ v.className="verify ok"; v.innerHTML='<svg class="ico"><use href="#i-check"/></svg>캘린더 등록까지 확인되었습니다.'; return; }
+    }catch(_){}
+  }
+  const serverFailed = !!(state.lastRes && state.lastRes.data && state.lastRes.data.success===false);
   v.className="verify warn";
-  v.innerHTML='예약은 접수되었습니다. 자동 확인만 조금 지연되고 있어요. '
+  v.innerHTML = (serverFailed
+      ? '서버가 예약을 처리하지 못했다고 응답했습니다. '
+      : '예약 신청은 전송되었습니다. 캘린더 반영이 늦어 자동 확인만 못 했습니다. ')
     + '<button type="button" id="recheck" style="text-decoration:underline;font-weight:800;color:inherit">다시 확인</button>'
-    + ' · 급하시면 <a href="tel:01022133907" style="text-decoration:underline;font-weight:800;color:inherit">전화</a>';
-  const rc=$("#recheck"); if(rc) rc.onclick=()=>verifyBooked(p,true);
+    + ' · <a href="tel:01022133907" style="text-decoration:underline;font-weight:800;color:inherit">010-2213-3907</a>로 문의';
+  const rc=$("#recheck"); if(rc) rc.onclick=()=>verifyBooked(p, before);
 }
 $("#icsBtn").addEventListener("click",()=>{
   const p=state.last; if(!p) return; const s0=toMin(p.time), s1=s0+CONFIG.DURATION_HOUR*60, ds=p.date.replace(/-/g,"");
